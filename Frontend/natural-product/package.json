@@ -10,12 +10,19 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@react-three/drei": "^10.0.7",
+    "@react-three/fiber": "^9.1.2",
+    "@reduxjs/toolkit": "^2.7.0",
     "@tailwindcss/vite": "^4.1.4",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "react-redux": "^9.2.0",
     "react-router-dom": "^6.30.0",
+    "react-slick": "^0.30.3",
     "react-toastify": "^11.0.5",
-    "tailwindcss": "^4.1.4"
+    "slick-carousel": "^1.8.1",
+    "tailwindcss": "^4.1.4",
+    "three": "^0.176.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.22.0",
