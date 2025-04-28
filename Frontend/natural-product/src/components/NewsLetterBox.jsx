@@ -2,25 +2,11 @@ import React, { useState } from 'react';
 
 const NewsLetterBox = () => {
   const [email, setEmail] = useState('');
-  const [error, setError] = useState('');
 
-  const validateEmail = (email) => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(email);
-  };
-
-  const handleSubscribe = () => {
-    if (!email) {
-      setError('Please fill out this field');
-      return;
-    }
-    if (!validateEmail(email)) {
-      setError('Please enter a valid email');
-      return;
-    }
-    setError('');
+  const handleSubmit = (e) => {
+    e.preventDefault();
     console.log('Subscribing with email:', email);
-    setEmail(''); // Clear input on successful validation
+    setEmail(''); // Clear input after submission
   };
 
   return (
@@ -37,32 +23,16 @@ const NewsLetterBox = () => {
             type="email"
             placeholder="Enter your email"
             value={email}
-            onChange={(e) => {
-              setEmail(e.target.value);
-              setError(''); // Clear error on input change
-            }}
-            className={`w-full sm:w-80 px-4 py-3 rounded-lg border ${
-              error ? 'border-red-500' : 'border-gray-300'
-            }  placeholder-gray-400 transition-all duration-300`}
-            required
-            aria-invalid={error ? 'true' : 'false'}
+            onChange={(e) => setEmail(e.target.value)}
+            className="w-full sm:w-80 px-4 py-3 rounded-lg border border-gray-300 placeholder-gray-400"
           />
           <button
-            onClick={handleSubscribe}
-            className="w-full sm:w-auto px-6 py-3 bg-indigo-600 text-white font-semibold rounded-lg hover:bg-indigo-700 transition-all duration-300 cursor-pointer"
+            onClick={handleSubmit}
+            className=" cursor-pointer w-full sm:w-auto px-6 py-3 bg-indigo-600 text-white font-semibold rounded-lg hover:bg-indigo-700 transition-all duration-300"
           >
             Subscribe Now
           </button>
         </div>
-        {error && (
-          <p
-            className="mt-3 text-sm text-red-500"
-            role="alert"
-            aria-live="polite"
-          >
-            {error}
-          </p>
-        )}
       </div>
     </div>
   );
