@@ -14,7 +14,7 @@ const ProductItem = ({ id, image, name, price }) => {
       <div className="relative overflow-hidden aspect-square rounded-xl mb-3 bg-gray-50 shadow-sm">
         <div className="relative h-full w-full">
           <img
-            className="absolute h-full w-full object-cover transition-transform duration-500 ease-[cubic-bezier(0.25,0.8,0.25,1)] group-hover:scale-108"
+            className="absolute h-full w-full object-cover transition-transform duration-500 ease-[cubic-bezier(0.25,0.8,0.25,1)] hover:scale-109"
             src={image[0]}
             alt={name}
             loading="lazy"
@@ -25,10 +25,10 @@ const ProductItem = ({ id, image, name, price }) => {
 
       {/* Product details */}
       <div className="px-1 space-y-1">
-        <p className="text-gray-800 text-sm md:text-base font-medium line-clamp-2 transition-colors duration-200 group-hover:text-indigo-500">
+        <p className="text-gray-800 text-sm md:text-base font-medium line-clamp-2 transition-colors duration-200 ">
           {name}
         </p>
-        <p className="text-gray-800 font-semibold text-base md:text-lg transition-colors duration-200 group-hover:text-indigo-700">
+        <p className="text-gray-800 font-semibold text-base md:text-lg transition-colors duration-200">
           {currency}{price.toFixed(2)}
         </p>
       </div>

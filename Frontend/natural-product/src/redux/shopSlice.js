@@ -1,28 +1,30 @@
 import { createSlice } from '@reduxjs/toolkit';
 import { products } from '../assets/assets';
 
-// Initial state structure
 const initialState = {
-  products: products,       // Your product data
-  currency: '$',           // Currency symbol
-  delivery_Fee: 10,        // Delivery cost
-  // Future states can be added here (e.g., cart, userData)
+  products: products,
+  currency: '$',
+  delivery_Fee: 10,
+  search: '',              // Add search state here
+  showSearch: false        // Add showSearch state here
 };
 
 export const shopSlice = createSlice({
-  name: 'shop',           // Slice name (used in Redux DevTools)
-  initialState,           // Default state
-  reducers: {             
-    // Add functions here to modify state
-    // Example:
-    // updateCurrency: (state, action) => {
-    //   state.currency = action.payload;
-    // }
+  name: 'shop',
+  initialState,
+  reducers: {
+    setSearch: (state, action) => {
+      state.search = action.payload;
+    },
+    setShowSearch: (state, action) => {
+      state.showSearch = action.payload;
+    },
+    // Add other reducers as needed
   },
 });
 
-// Export actions (for dispatching)
-// export const { updateCurrency } = shopSlice.actions;
+// Export actions
+export const { setSearch, setShowSearch } = shopSlice.actions;
 
-// Export reducer (for store configuration)
+// Export reducer
 export default shopSlice.reducer;
