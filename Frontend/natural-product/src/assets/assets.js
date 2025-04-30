@@ -1,13 +1,28 @@
-import p_img1 from './p_img1.png'
-import p_img2 from './p_img2.png'
-import p_img3 from './p_img3.png'
-import p_img4 from './p_img4.png'
-import p_img5 from './p_img5.png'
-import p_img6 from './p_img6.png'
-import p_img7 from './p_img7.png'
-import p_img8 from './p_img8.png'
-import p_img9 from './p_img9.png'
-import p_img10 from './p_img10.png'
+import p_img1_1 from './p_img1_1.png'
+import p_img1_2 from './p_img1_2.png'
+import p_img1_3 from './p_img1_3.png'
+import p_img1_4 from './p_img1_4.png'
+import p_img2_1 from './p_img2_1.png'
+import p_img2_2 from './p_img2_2.png'
+import p_img2_3 from './p_img2_3.png'
+import p_img2_4 from './p_img2_4.png'
+import p_img3_1 from './p_img3_1.png'
+import p_img3_3 from './p_img3_3.png'
+import p_img4_1 from './p_img4_1.png'
+import p_img4_2 from './p_img4_2.png'
+import p_img5_1 from './p_img5_1.png'
+import p_img5_2 from './p_img5_2.png'
+import p_img6_1 from './p_img6_1.png'
+import p_img6_2 from './p_img6_2.png'
+import p_img7_1 from './p_img7_1.png'
+import p_img7_2 from './p_img7_2.png'
+import p_img8_1 from './p_img8_1.png'
+import p_img8_2 from './p_img8_2.png'
+import p_img8_3 from './p_img8_3.png'
+import p_img9_1 from './p_img9_1.png'
+import p_img9_2 from './p_img9_2.png'
+import p_img10_1 from './p_img10_1.png'
+import p_img10_2 from './p_img10_2.png'
 import p_img11 from './p_img11.png'
 import p_img12 from './p_img12.png'
 import p_img13 from './p_img13.png'
@@ -88,7 +103,7 @@ export const products = [
         benefits: ["Fights dandruff", "Soothes itchy scalp", "Strengthens hair roots", "Adds shine"],
         stockStatus: "In Stock",
         price: 100,
-        image: [p_img1],
+        image: [p_img1_1, p_img1_2, p_img1_3, p_img1_4],
         category: "Shampoo",
         subCategory: "Haircare",
         sizes: ["S", "M", "L"],
@@ -103,7 +118,7 @@ export const products = [
         benefits: ["Adds volume", "Reduces thinning", "Stimulates hair growth", "Refreshes scalp"],
         stockStatus: "In Stock",
         price: 200,
-        image: [p_img2],
+        image: [p_img2_1, p_img2_2, p_img2_3, p_img2_4],
         category: "Shampoo",
         subCategory: "Haircare",
         sizes: ["M", "L", "XL"],
@@ -118,7 +133,7 @@ export const products = [
         benefits: ["Tear-free formula", "Gentle cleansing", "Reduces tangles", "Safe for daily use"],
         stockStatus: "Low Stock",
         price: 220,
-        image: [p_img3],
+        image: [p_img3_1, p_img3_3],
         category: "Shampoo",
         subCategory: "Haircare",
         sizes: ["S", "L", "XL"],
@@ -133,7 +148,7 @@ export const products = [
         benefits: ["Reduces hair fall", "Strengthens roots", "Improves hair density", "Nourishes scalp"],
         stockStatus: "In Stock",
         price: 110,
-        image: [p_img4],
+        image: [p_img4_1,p_img4_2],
         category: "Shampoo",
         subCategory: "Haircare",
         sizes: ["S", "M", "XXL"],
@@ -148,7 +163,7 @@ export const products = [
         benefits: ["Deep hydration", "Reduces frizz", "Adds shine", "Repairs damage"],
         stockStatus: "In Stock",
         price: 130,
-        image: [p_img5],
+        image: [p_img5_1, p_img5_2],
         category: "Shampoo",
         subCategory: "Haircare",
         sizes: ["M", "L", "XL"],
@@ -163,7 +178,7 @@ export const products = [
         benefits: ["Fun bubble formula", "Gentle cleansing", "Tear-free", "Pleasant fragrance"],
         stockStatus: "In Stock",
         price: 140,
-        image: [p_img6],
+        image: [p_img6_1, p_img6_2],
         category: "Shampoo",
         subCategory: "Haircare",
         sizes: ["S", "L", "XL"],
@@ -178,7 +193,7 @@ export const products = [
         benefits: ["Deep cleanses", "Controls oil", "Refreshes scalp", "Removes buildup"],
         stockStatus: "In Stock",
         price: 190,
-        image: [p_img7],
+        image: [p_img7_1, p_img7_2],
         category: "Shampoo",
         subCategory: "Haircare",
         sizes: ["S", "L", "XL"],
@@ -193,7 +208,7 @@ export const products = [
         benefits: ["Mild cleansing", "Maintains moisture", "Suitable for daily use", "Adds shine"],
         stockStatus: "Out of Stock",
         price: 140,
-        image: [p_img8],
+        image: [p_img8_1, p_img8_2,p_img8_3],
         category: "Shampoo",
         subCategory: "Haircare",
         sizes: ["S", "M", "L", "XL"],
@@ -208,7 +223,7 @@ export const products = [
         benefits: ["Nourishes hair", "Promotes growth", "Adds softness", "Gentle formula"],
         stockStatus: "In Stock",
         price: 100,
-        image: [p_img9],
+        image: [p_img9_1,p_img9_2],
         category: "Shampoo",
         subCategory: "Haircare",
         sizes: ["M", "L", "XL"],
@@ -223,7 +238,7 @@ export const products = [
         benefits: ["Cooling effect", "Soothes scalp", "Refreshes hair", "Controls oil"],
         stockStatus: "In Stock",
         price: 110,
-        image: [p_img10],
+        image: [p_img10_1, p_img10_2],
         category: "Shampoo",
         subCategory: "Haircare",
         sizes: ["S", "L", "XL"],
