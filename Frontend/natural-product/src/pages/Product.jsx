@@ -1,8 +1,8 @@
-
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { assets } from '../assets/assets';
+import RelatedProducts from '../components/RelatedProducts';
 
 const Product = () => {
   const { productId } = useParams();
@@ -29,10 +29,111 @@ const Product = () => {
     );
   }
 
+  // Component for the Description and Reviews section
+  const DescriptionAndReviews = () => (
+    <div>
+      <div className="flex gap-6 border-b border-gray-200">
+        <button
+          className={`pb-2 text-sm font-medium transition-colors ${
+            activeTab === 'description'
+              ? 'text-gray-900 border-b-2 border-gray-900'
+              : 'text-gray-500 hover:text-gray-700'
+          }`}
+          onClick={() => setActiveTab('description')}
+        >
+          Description
+        </button>
+        <button
+          className={`pb-2 text-sm font-medium transition-colors ${
+            activeTab === 'reviews'
+              ? 'text-gray-900 border-b-2 border-gray-900'
+              : 'text-gray-500 hover:text-gray-700'
+          }`}
+          onClick={() => setActiveTab('reviews')}
+        >
+          Reviews (122)
+        </button>
+      </div>
+      <div className="mt-6 text-gray-600 text-sm leading-relaxed">
+        {activeTab === 'description' ? (
+          <div className="text-gray-600 text-sm leading-relaxed">
+            <p>
+              An e-commerce website is an online platform that facilitates the buying and selling of products or services over the internet. It serves as a virtual marketplace where businesses and individuals can showcase their products, interact with customers, and conduct transactions without the need for a physical presence. E-commerce websites have gained immense popularity due to their convenience, accessibility, and the global reach they offer.
+            </p>
+            <p className="mt-4">
+              E-commerce websites typically display products or services along with detailed descriptions, images, prices, and any available variations (e.g., sizes, colors). Each product usually has its own dedicated page with relevant information.
+            </p>
+          </div>
+        ) : (
+          <div className="flex flex-col gap-6">
+            {/* Review 1 */}
+            <div>
+              <div className="flex items-center gap-2">
+                <div className="flex">
+                  <img src={assets.star_icon} alt="Star" className="w-4 h-4" />
+                  <img src={assets.star_icon} alt="Star" className="w-4 h-4" />
+                  <img src={assets.star_icon} alt="Star" className="w-4 h-4" />
+                  <img src={assets.star_icon} alt="Star" className="w-4 h-4" />
+                  <img src={assets.star_dull_icon} alt="Star" className="w-4 h-4" />
+                </div>
+                <p className="text-sm font-medium text-gray-900">Sarah M.</p>
+                <p className="text-xs text-gray-500">April 15, 2025</p>
+              </div>
+              <p className="mt-2">
+                This shampoo is amazing! My hair feels so soft and refreshed after using it. The cooling effect is a nice touch, especially after a long day. Highly recommend!
+              </p>
+            </div>
+            {/* Review 2 */}
+            <div>
+              <div className="flex items-center gap-2">
+                <div className="flex">
+                  <img src={assets.star_icon} alt="Star" className="w-4 h-4" />
+                  <img src={assets.star_icon} alt="Star" className="w-4 h-4" />
+                  <img src={assets.star_icon} alt="Star" className="w-4 h-4" />
+                  <img src={assets.star_icon} alt="Star" className="w-4 h-4" />
+                  <img src={assets.star_icon} alt="Star" className="w-4 h-4" />
+                </div>
+                <p className="text-sm font-medium text-gray-900">John D.</p>
+                <p className="text-xs text-gray-500">April 10, 2025</p>
+              </div>
+              <p className="mt-2">
+                I've been using this product for a month, and I can already see a difference. My scalp feels cleaner, and my hair looks healthier. Definitely worth the price!
+              </p>
+            </div>
+            {/* Review 3 */}
+            <div>
+              <div className="flex items-center gap-2">
+                <div className="flex">
+                  <img src={assets.star_icon} alt="Star" className="w-4 h-4" />
+                  <img src={assets.star_icon} alt="Star" className="w-4 h-4" />
+                  <img src={assets.star_icon} alt="Star" className="w-4 h-4" />
+                  <img src={assets.star_dull_icon} alt="Star" className="w-4 h-4" />
+                  <img src={assets.star_dull_icon} alt="Star" className="w-4 h-4" />
+                </div>
+                <p className="text-sm font-medium text-gray-900">Emily R.</p>
+                <p className="text-xs text-gray-500">April 5, 2025</p>
+              </div>
+              <p className="mt-2">
+                The shampoo is decent, but I didn't feel the cooling effect as much as I expected. It cleans well, though, and my hair feels okay. Might try it again.
+              </p>
+            </div>
+            {/* See More Button */}
+            <button
+              className="mt-4 w-full sm:w-1/2 bg-gray-200 text-gray-900 py-2 rounded-lg hover:bg-gray-300 transition"
+              onClick={() => alert('Load more reviews')} // Placeholder action
+            >
+              See More
+            </button>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* Left Column: Product Images and Description/Reviews */}
+        {/* Left Column: Product Images */}
         <div className="flex flex-col gap-6">
           {/* Product Images */}
           <div className="flex flex-col sm:flex-row gap-4">
@@ -65,97 +166,9 @@ const Product = () => {
             </div>
           </div>
 
-          {/* Description and Reviews Section */}
-          <div>
-            <div className="flex gap-6 border-b border-gray-200">
-              <button
-                className={`pb-2 text-sm font-medium transition-colors ${
-                  activeTab === 'description'
-                    ? 'text-gray-900 border-b-2 border-gray-900'
-                    : 'text-gray-500 hover:text-gray-700'
-                }`}
-                onClick={() => setActiveTab('description')}
-              >
-                Description
-              </button>
-              <button
-                className={`pb-2 text-sm font-medium transition-colors ${
-                  activeTab === 'reviews'
-                    ? 'text-gray-900 border-b-2 border-gray-900'
-                    : 'text-gray-500 hover:text-gray-700'
-                }`}
-                onClick={() => setActiveTab('reviews')}
-              >
-                Reviews (122)
-              </button>
-            </div>
-            <div className="mt-6 text-gray-600 text-sm leading-relaxed">
-              {activeTab === 'description' ? (
-                <div className="text-gray-600 text-sm leading-relaxed">
-                  <p>
-                    An e-commerce website is an online platform that facilitates the buying and selling of products or services over the internet. It serves as a virtual marketplace where businesses and individuals can showcase their products, interact with customers, and conduct transactions without the need for a physical presence. E-commerce websites have gained immense popularity due to their convenience, accessibility, and the global reach they offer.
-                  </p>
-                  <p className="mt-4">
-                    E-commerce websites typically display products or services along with detailed descriptions, images, prices, and any available variations (e.g., sizes, colors). Each product usually has its own dedicated page with relevant information.
-                  </p>
-                </div>
-              ) : (
-                <div className="flex flex-col gap-6">
-                  {/* Reviews */}
-                  {/* Review 1 */}
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <div className="flex">
-                        <img src={assets.star_icon} alt="Star" className="w-4 h-4" />
-                        <img src={assets.star_icon} alt="Star" className="w-4 h-4" />
-                        <img src={assets.star_icon} alt="Star" className="w-4 h-4" />
-                        <img src={assets.star_icon} alt="Star" className="w-4 h-4" />
-                        <img src={assets.star_dull_icon} alt="Star" className="w-4 h-4" />
-                      </div>
-                      <p className="text-sm font-medium text-gray-900">Sarah M.</p>
-                      <p className="text-xs text-gray-500">April 15, 2025</p>
-                    </div>
-                    <p className="mt-2">
-                      This shampoo is amazing! My hair feels so soft and refreshed after using it. The cooling effect is a nice touch, especially after a long day. Highly recommend!
-                    </p>
-                  </div>
-                  {/* Review 2 */}
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <div className="flex">
-                        <img src={assets.star_icon} alt="Star" className="w-4 h-4" />
-                        <img src={assets.star_icon} alt="Star" className="w-4 h-4" />
-                        <img src={assets.star_icon} alt="Star" className="w-4 h-4" />
-                        <img src={assets.star_icon} alt="Star" className="w-4 h-4" />
-                        <img src={assets.star_icon} alt="Star" className="w-4 h-4" />
-                      </div>
-                      <p className="text-sm font-medium text-gray-900">John D.</p>
-                      <p className="text-xs text-gray-500">April 10, 2025</p>
-                    </div>
-                    <p className="mt-2">
-                      I've been using this product for a month, and I can already see a difference. My scalp feels cleaner, and my hair looks healthier. Definitely worth the price!
-                    </p>
-                  </div>
-                  {/* Review 3 */}
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <div className="flex">
-                        <img src={assets.star_icon} alt="Star" className="w-4 h-4" />
-                        <img src={assets.star_icon} alt="Star" className="w-4 h-4" />
-                        <img src={assets.star_icon} alt="Star" className="w-4 h-4" />
-                        <img src={assets.star_dull_icon} alt="Star" className="w-4 h-4" />
-                        <img src={assets.star_dull_icon} alt="Star" className="w-4 h-4" />
-                      </div>
-                      <p className="text-sm font-medium text-gray-900">Emily R.</p>
-                      <p className="text-xs text-gray-500">April 5, 2025</p>
-                    </div>
-                    <p className="mt-2">
-                      The shampoo is decent, but I didn't feel the cooling effect as much as I expected. It cleans well, though, and my hair feels okay. Might try it again.
-                    </p>
-                  </div>
-                </div>
-              )}
-            </div>
+          {/* Description and Reviews - Only on large screens */}
+          <div className="hidden lg:block">
+            <DescriptionAndReviews />
           </div>
         </div>
 
@@ -286,6 +299,11 @@ const Product = () => {
         </div>
       </div>
 
+      {/* Description and Reviews - Only on small screens */}
+      <div className="mt-8 lg:hidden">
+        <DescriptionAndReviews />
+      </div>
+         <RelatedProducts category={productData.category} subCategory={productData.subCategory} />
       {/* Empty Space */}
       <div className="mt-24"></div>
     </div>
