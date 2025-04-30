@@ -23,20 +23,19 @@ const Product = () => {
 
   if (!productData) {
     return (
-      <div className="flex justify-center items-center h-screen">
-        <p className="text-gray-500 text-lg">Loading...</p>
+      <div className="flex h-screen items-center justify-center">
+        <p className="text-lg text-gray-500">Loading...</p>
       </div>
     );
   }
 
-  // Component for the Description and Reviews section
   const DescriptionAndReviews = () => (
     <div>
       <div className="flex gap-6 border-b border-gray-200">
         <button
           className={`pb-2 text-sm font-medium transition-colors ${
             activeTab === 'description'
-              ? 'text-gray-900 border-b-2 border-gray-900'
+              ? 'border-b-2 border-gray-900 text-gray-900'
               : 'text-gray-500 hover:text-gray-700'
           }`}
           onClick={() => setActiveTab('description')}
@@ -46,17 +45,17 @@ const Product = () => {
         <button
           className={`pb-2 text-sm font-medium transition-colors ${
             activeTab === 'reviews'
-              ? 'text-gray-900 border-b-2 border-gray-900'
+              ? 'border-b-2 border-gray-900 text-gray-900'
               : 'text-gray-500 hover:text-gray-700'
           }`}
           onClick={() => setActiveTab('reviews')}
         >
-          Reviews (122)
+          Reviews ({productData.reviews?.length || 0})
         </button>
       </div>
-      <div className="mt-6 text-gray-600 text-sm leading-relaxed">
+      <div className="mt-6 text-sm leading-relaxed text-gray-600">
         {activeTab === 'description' ? (
-          <div className="text-gray-600 text-sm leading-relaxed">
+          <div>
             <p>
               An e-commerce website is an online platform that facilitates the buying and selling of products or services over the internet. It serves as a virtual marketplace where businesses and individuals can showcase their products, interact with customers, and conduct transactions without the need for a physical presence. E-commerce websites have gained immense popularity due to their convenience, accessibility, and the global reach they offer.
             </p>
@@ -66,64 +65,43 @@ const Product = () => {
           </div>
         ) : (
           <div className="flex flex-col gap-6">
-            {/* Review 1 */}
-            <div>
-              <div className="flex items-center gap-2">
-                <div className="flex">
-                  <img src={assets.star_icon} alt="Star" className="w-4 h-4" />
-                  <img src={assets.star_icon} alt="Star" className="w-4 h-4" />
-                  <img src={assets.star_icon} alt="Star" className="w-4 h-4" />
-                  <img src={assets.star_icon} alt="Star" className="w-4 h-4" />
-                  <img src={assets.star_dull_icon} alt="Star" className="w-4 h-4" />
+            {productData.reviews?.length > 0 ? (
+              productData.reviews.map((review, index) => (
+                <div key={index}>
+                  <div className="flex items-center gap-2">
+                    <div className="flex">
+                      {[1, 2, 3, 4, 5].map((star) => (
+                        <img
+                          key={star}
+                          src={star <= review.rating ? assets.star_icon : assets.star_dull_icon}
+                          alt="Star"
+                          className="h-4 w-4"
+                        />
+                      ))}
+                    </div>
+                    <p className="text-sm font-medium text-gray-900">{review.name}</p>
+                    <p className="text-xs text-gray-500">
+                      {new Date(review.date).toLocaleDateString('en-US', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric',
+                      })}
+                    </p>
+                  </div>
+                  <p className="mt-2">{review.comment}</p>
                 </div>
-                <p className="text-sm font-medium text-gray-900">Sarah M.</p>
-                <p className="text-xs text-gray-500">April 15, 2025</p>
-              </div>
-              <p className="mt-2">
-                This shampoo is amazing! My hair feels so soft and refreshed after using it. The cooling effect is a nice touch, especially after a long day. Highly recommend!
-              </p>
-            </div>
-            {/* Review 2 */}
-            <div>
-              <div className="flex items-center gap-2">
-                <div className="flex">
-                  <img src={assets.star_icon} alt="Star" className="w-4 h-4" />
-                  <img src={assets.star_icon} alt="Star" className="w-4 h-4" />
-                  <img src={assets.star_icon} alt="Star" className="w-4 h-4" />
-                  <img src={assets.star_icon} alt="Star" className="w-4 h-4" />
-                  <img src={assets.star_icon} alt="Star" className="w-4 h-4" />
-                </div>
-                <p className="text-sm font-medium text-gray-900">John D.</p>
-                <p className="text-xs text-gray-500">April 10, 2025</p>
-              </div>
-              <p className="mt-2">
-                I've been using this product for a month, and I can already see a difference. My scalp feels cleaner, and my hair looks healthier. Definitely worth the price!
-              </p>
-            </div>
-            {/* Review 3 */}
-            <div>
-              <div className="flex items-center gap-2">
-                <div className="flex">
-                  <img src={assets.star_icon} alt="Star" className="w-4 h-4" />
-                  <img src={assets.star_icon} alt="Star" className="w-4 h-4" />
-                  <img src={assets.star_icon} alt="Star" className="w-4 h-4" />
-                  <img src={assets.star_dull_icon} alt="Star" className="w-4 h-4" />
-                  <img src={assets.star_dull_icon} alt="Star" className="w-4 h-4" />
-                </div>
-                <p className="text-sm font-medium text-gray-900">Emily R.</p>
-                <p className="text-xs text-gray-500">April 5, 2025</p>
-              </div>
-              <p className="mt-2">
-                The shampoo is decent, but I didn't feel the cooling effect as much as I expected. It cleans well, though, and my hair feels okay. Might try it again.
-              </p>
-            </div>
-            {/* See More Button */}
-            <button
-              className="mt-4 w-full sm:w-1/2 bg-gray-200 text-gray-900 py-2 rounded-lg hover:bg-gray-300 transition"
-              onClick={() => alert('Load more reviews')} // Placeholder action
-            >
-              See More
-            </button>
+              ))
+            ) : (
+              <p>No reviews yet.</p>
+            )}
+            {productData.reviews?.length > 0 && (
+              <button
+                className="mt-4 w-full rounded-lg bg-gray-200 py-2 text-gray-900 hover:bg-gray-300 sm:w-1/2"
+                onClick={() => alert('Load more reviews')}
+              >
+                See More
+              </button>
+            )}
           </div>
         )}
       </div>
@@ -131,42 +109,39 @@ const Product = () => {
   );
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+    <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
+      <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
         {/* Left Column: Product Images */}
         <div className="flex flex-col gap-6">
-          {/* Product Images */}
-          <div className="flex flex-col sm:flex-row gap-4">
+          <div className="flex flex-col gap-4 sm:flex-row">
             {/* Thumbnail Images */}
-            <div className="flex flex-row sm:flex-col gap-3 overflow-x-auto sm:overflow-x-visible sm:overflow-y-auto max-h-[500px] pb-2 sm:pb-0 scrollbar-hide">
+            <div className="flex max-h-[500px] flex-row gap-3 overflow-x-auto pb-2 scrollbar-hide sm:flex-col sm:overflow-x-visible sm:overflow-y-auto sm:pb-0">
               {productData.image.map((img, index) => (
                 <div
                   key={index}
-                  className={`relative w-16 h-16 sm:w-20 sm:h-20 flex-shrink-0 rounded-lg cursor-pointer transition-all duration-200`}
+                  className="relative h-16 w-16 flex-shrink-0 cursor-pointer rounded-lg sm:h-20 sm:w-20"
                   onClick={() => setMainImage(img)}
                 >
                   <img
                     src={img}
                     alt={`${productData.name} thumbnail ${index + 1}`}
-                    className="w-full h-full object-contain bg-white rounded-lg"
+                    className="h-full w-full rounded-lg bg-white object-contain"
                   />
                   {mainImage === img && (
-                    <div className="absolute inset-0 border-2 border-gray-300 rounded-lg pointer-events-none"></div>
+                    <div className="absolute inset-0 rounded-lg border-2 border-gray-300"></div>
                   )}
                 </div>
               ))}
             </div>
             {/* Main Image */}
-            <div className="flex-1 w-full h-[400px] sm:h-[500px] bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+            <div className="h-[400px] flex-1 overflow-hidden rounded-xl bg-white shadow-sm transition-shadow hover:shadow-md sm:h-[500px]">
               <img
                 src={mainImage}
                 alt={productData.name}
-                className="w-full h-full object-contain p-4"
+                className="h-full w-full object-contain p-4"
               />
             </div>
           </div>
-
-          {/* Description and Reviews - Only on large screens */}
           <div className="hidden lg:block">
             <DescriptionAndReviews />
           </div>
@@ -176,30 +151,32 @@ const Product = () => {
         <div className="flex flex-col gap-6">
           <div>
             <h1 className="text-3xl font-semibold text-gray-900">{productData.name}</h1>
-            <div className="flex items-center gap-2 mt-2">
+            <div className="mt-2 flex items-center gap-2">
               <div className="flex">
-                <img src={assets.star_icon} alt="Star" className="w-4 h-4" />
-                <img src={assets.star_icon} alt="Star" className="w-4 h-4" />
-                <img src={assets.star_icon} alt="Star" className="w-4 h-4" />
-                <img src={assets.star_icon} alt="Star" className="w-4 h-4" />
-                <img src={assets.star_dull_icon} alt="Star" className="w-4 h-4" />
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <img
+                    key={star}
+                    src={
+                      star <= Math.round(productData.reviews?.reduce((acc, r) => acc + r.rating, 0) / (productData.reviews?.length || 1))
+                        ? assets.star_icon
+                        : assets.star_dull_icon
+                    }
+                    alt="Star"
+                    className="h-4 w-4"
+                  />
+                ))}
               </div>
-              <p className="text-sm text-gray-600">(122)</p>
+              <p className="text-sm text-gray-600">({productData.reviews?.length || 0})</p>
             </div>
           </div>
           <p className="text-gray-600">{productData.description}</p>
-
-          {/* Pricing */}
           <div className="flex items-center gap-4">
             <p className="text-sm font-medium text-gray-600">Price:</p>
             <p className="text-2xl font-bold text-gray-900">${productData.price}</p>
           </div>
-
-          {/* Stock and Category */}
           <div className="flex flex-col gap-2">
             <p className="text-sm text-gray-600">
-              <span className="font-medium">Stock:</span>{' '}
-              {productData.stockStatus || 'In Stock'}
+              <span className="font-medium">Stock:</span> {productData.stockStatus}
             </p>
             <p className="text-sm text-gray-600">
               <span className="font-medium">Category:</span> {productData.category}
@@ -210,8 +187,6 @@ const Product = () => {
               </p>
             )}
           </div>
-
-          {/* Sizes */}
           {productData.sizes && (
             <div className="flex flex-col gap-2">
               <p className="text-sm font-medium text-gray-900">Available Sizes:</p>
@@ -219,9 +194,9 @@ const Product = () => {
                 {productData.sizes.map((size) => (
                   <button
                     key={size}
-                    className={`px-4 py-2 border rounded-md text-sm text-gray-700 transition ${
+                    className={`rounded-md border px-4 py-2 text-sm text-gray-700 transition ${
                       selectedSize === size
-                        ? 'bg-gray-200 border-gray-400'
+                        ? 'border-gray-400 bg-gray-200'
                         : 'border-gray-300 hover:bg-gray-100'
                     }`}
                     onClick={() => setSelectedSize(size)}
@@ -232,38 +207,22 @@ const Product = () => {
               </div>
             </div>
           )}
-
-          {/* Add to Cart Button */}
           <button
-            className="mt-4 w-full sm:w-1/2 bg-gray-900 text-white py-3 rounded-lg hover:bg-gray-800 transition disabled:bg-gray-400"
+            className="mt-4 w-full rounded-lg bg-gray-900 py-3 text-white transition hover:bg-gray-800 disabled:bg-gray-400 sm:w-1/2"
             disabled={productData.stockStatus !== 'In Stock'}
           >
             {productData.stockStatus === 'In Stock' ? 'Add to Cart' : 'Out of Stock'}
           </button>
-
-          {/* Product Assurances */}
           <div className="flex flex-col gap-3">
-            <div className="flex items-center gap-2">
-              <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
-              </svg>
-              <p className="text-sm text-gray-700">100% original product</p>
-            </div>
-            <div className="flex items-center gap-2">
-              <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
-              </svg>
-              <p className="text-sm text-gray-700">Cash on delivery available</p>
-            </div>
-            <div className="flex items-center gap-2">
-              <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
-              </svg>
-              <p className="text-sm text-gray-700">Easy return and exchange within 7 days</p>
-            </div>
+            {['100% original product', 'Cash on delivery available', 'Easy return and exchange within 7 days'].map((text, index) => (
+              <div key={index} className="flex items-center gap-2">
+                <svg className="h-5 w-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+                </svg>
+                <p className="text-sm text-gray-700">{text}</p>
+              </div>
+            ))}
           </div>
-
-          {/* Benefits */}
           {productData.benefits && (
             <div className="flex flex-col gap-3">
               <p className="text-sm font-medium text-gray-900">Key Benefits:</p>
@@ -271,7 +230,7 @@ const Product = () => {
                 {productData.benefits.map((benefit, index) => (
                   <span
                     key={index}
-                    className="px-3 py-1 bg-gray-100 text-gray-700 text-sm rounded-full border border-gray-200 shadow-sm"
+                    className="rounded-full border border-gray-200 bg-gray-100 px-3 py-1 text-sm text-gray-700 shadow-sm"
                   >
                     {benefit}
                   </span>
@@ -279,8 +238,6 @@ const Product = () => {
               </div>
             </div>
           )}
-
-          {/* Ingredients */}
           {productData.ingredients && (
             <div className="flex flex-col gap-3">
               <p className="text-sm font-medium text-gray-900">Ingredients:</p>
@@ -288,7 +245,7 @@ const Product = () => {
                 {productData.ingredients.map((ingredient, index) => (
                   <span
                     key={index}
-                    className="px-3 py-1 bg-gray-100 text-gray-700 text-sm rounded-full border border-gray-200 shadow-sm"
+                    className="rounded-full border border-gray-200 bg-gray-100 px-3 py-1 text-sm text-gray-700 shadow-sm"
                   >
                     {ingredient}
                   </span>
@@ -298,13 +255,10 @@ const Product = () => {
           )}
         </div>
       </div>
-
-      {/* Description and Reviews - Only on small screens */}
       <div className="mt-8 lg:hidden">
         <DescriptionAndReviews />
       </div>
-         <RelatedProducts category={productData.category} subCategory={productData.subCategory} />
-      {/* Empty Space */}
+      <RelatedProducts category={productData.category} subCategory={productData.subCategory} />
       <div className="mt-24"></div>
     </div>
   );
