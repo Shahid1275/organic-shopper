@@ -1,17 +1,22 @@
-
 import React, { useState, useEffect } from 'react';
 import { assets } from '../assets/assets';
 import { NavLink, Link } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
-import { useDispatch } from 'react-redux';
-import {  setShowSearch } from '../redux/shopSlice';
+import { useDispatch, useSelector } from 'react-redux';
+import { setShowSearch } from '../redux/shopSlice';
+
 const Navbar = () => {
   const [visible, setVisible] = useState(false);
-  // const { search, showSearch } = useSelector((state) => state.shop);
-  
+  const { cartItems } = useSelector((state) => state.shop);
   const dispatch = useDispatch();
-
   const navigate = useNavigate();
+
+  // Calculate total cart items
+  const getCartCount = () => {
+    return Object.values(cartItems).reduce((total, sizes) => {
+      return total + Object.values(sizes).reduce((sum, quantity) => sum + quantity, 0);
+    }, 0);
+  };
 
   // Prevent background scrolling when menu is open
   useEffect(() => {
@@ -20,7 +25,6 @@ const Navbar = () => {
     } else {
       document.body.style.overflow = 'auto'; // Enable scrolling
     }
-    // Cleanup on component unmount or when visible changes
     return () => {
       document.body.style.overflow = 'auto';
     };
@@ -53,10 +57,13 @@ const Navbar = () => {
         </NavLink>
       </ul>
 
-      {/* Search Icon */}
       <div className="flex items-center gap-6">
-        <img onClick={() => dispatch(setShowSearch(true))} className="w-5 cursor-pointer" src={assets.search_icon} alt="Search" />
-        {/* Profile Icon Dropdown */}
+        <img
+          onClick={() => dispatch(setShowSearch(true))}
+          className="w-5 cursor-pointer"
+          src={assets.search_icon}
+          alt="Search"
+        />
         <div className="group relative">
           <img className="w-5 cursor-pointer" src={assets.profile_icon} alt="Profile" />
           <div
@@ -80,7 +87,7 @@ const Navbar = () => {
         <Link to="/cart" className="relative">
           <img src={assets.cart_icon} alt="cart" className="w-5 min-w-5 cursor-pointer" />
           <p className="absolute -top-2 -right-2 text-xs w-4 h-4 text-center text-white bg-black rounded-full">
-            5
+            {getCartCount()}
           </p>
         </Link>
         <img
@@ -91,7 +98,6 @@ const Navbar = () => {
         />
       </div>
 
-      {/* Sidebar for small screen sizes */}
       <div
         className={`fixed inset-0 bg-white transition-all duration-300 ease-in-out z-50 ${
           visible ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-full'

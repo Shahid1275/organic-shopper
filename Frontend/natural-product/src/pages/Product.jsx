@@ -1,12 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import { assets } from '../assets/assets';
 import RelatedProducts from '../components/RelatedProducts';
+import { addToCart } from '../redux/shopSlice';
+import { toast } from 'react-toastify';
 
 const Product = () => {
   const { productId } = useParams();
   const { products } = useSelector((state) => state.shop);
+  const dispatch = useDispatch();
   const [productData, setProductData] = useState(null);
   const [mainImage, setMainImage] = useState('');
   const [selectedSize, setSelectedSize] = useState('');
@@ -17,9 +20,26 @@ const Product = () => {
     if (product) {
       setProductData(product);
       setMainImage(product.image[0] || '');
-      setSelectedSize(product.sizes?.[0] || '');
+      // setSelectedSize(product.sizes?.[0] || '');
     }
   }, [productId, products]);
+
+  const handleAddToCart = () => {
+    if (productData.stockStatus === 'In Stock' && selectedSize) {
+      dispatch(addToCart({ itemId: productData._id, size: selectedSize }));
+      console.log(`Added to cart: ${productData.name}, Size: ${selectedSize}`);
+      toast.success('Item added to cart!', {
+        position: 'top-right',
+        autoClose: 3000,
+      });
+    } else {
+      console.warn('Cannot add to cart: Invalid size or out of stock');
+      toast.error('Please select a size or check stock availability.', {
+        position: 'top-right',
+        autoClose: 3000,
+      });
+    }
+  };
 
   if (!productData) {
     return (
@@ -94,14 +114,6 @@ const Product = () => {
             ) : (
               <p>No reviews yet.</p>
             )}
-            {productData.reviews?.length > 0 && (
-              <button
-                className="mt-4 w-full rounded-lg bg-gray-200 py-2 text-gray-900 hover:bg-gray-300 sm:w-1/2"
-                onClick={() => alert('Load more reviews')}
-              >
-                See More
-              </button>
-            )}
           </div>
         )}
       </div>
@@ -111,10 +123,8 @@ const Product = () => {
   return (
     <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
-        {/* Left Column: Product Images */}
         <div className="flex flex-col gap-6">
           <div className="flex flex-col gap-4 sm:flex-row">
-            {/* Thumbnail Images */}
             <div className="flex max-h-[500px] flex-row gap-3 overflow-x-auto pb-2 scrollbar-hide sm:flex-col sm:overflow-x-visible sm:overflow-y-auto sm:pb-0">
               {productData.image.map((img, index) => (
                 <div
@@ -133,7 +143,6 @@ const Product = () => {
                 </div>
               ))}
             </div>
-            {/* Main Image */}
             <div className="h-[400px] flex-1 overflow-hidden rounded-xl bg-white shadow-sm transition-shadow hover:shadow-md sm:h-[500px]">
               <img
                 src={mainImage}
@@ -146,8 +155,6 @@ const Product = () => {
             <DescriptionAndReviews />
           </div>
         </div>
-
-        {/* Right Column: Product Details */}
         <div className="flex flex-col gap-6">
           <div>
             <h1 className="text-3xl font-semibold text-gray-900">{productData.name}</h1>
@@ -209,7 +216,8 @@ const Product = () => {
           )}
           <button
             className="mt-4 w-full rounded-lg bg-gray-900 py-3 text-white transition hover:bg-gray-800 disabled:bg-gray-400 sm:w-1/2"
-            disabled={productData.stockStatus !== 'In Stock'}
+            disabled={productData.stockStatus !== 'In Stock' || !selectedSize}
+            onClick={handleAddToCart}
           >
             {productData.stockStatus === 'In Stock' ? 'Add to Cart' : 'Out of Stock'}
           </button>
