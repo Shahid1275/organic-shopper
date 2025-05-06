@@ -65,7 +65,7 @@ const Navbar = () => {
           alt="Search"
         />
         <div className="group relative">
-          <img className="w-5 cursor-pointer" src={assets.profile_icon} alt="Profile" />
+        <Link to={'/login'} ><img className="w-5 cursor-pointer" src={assets.profile_icon} alt="Profile" /></Link> 
           <div
             className="absolute right-0 pt-4 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 ease-in-out transform group-hover:translate-y-0 translate-y-[-10px] z-10"
             role="menu"
