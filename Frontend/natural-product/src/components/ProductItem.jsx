@@ -5,9 +5,14 @@ import { Link } from 'react-router-dom';
 const ProductItem = ({ id, image, name, price }) => {
   const { currency } = useSelector((state) => state.shop);
 
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   return (
     <Link
       to={`/product/${id}`}
+      onClick={scrollToTop}
       className="group block w-full transition-all duration-300 ease-out hover:transform hover:-translate-y-1 hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:ring-offset-2 rounded-xl"
     >
       {/* Image container */}

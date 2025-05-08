@@ -23,12 +23,22 @@ import p_img9_1 from './p_img9_1.png'
 import p_img9_2 from './p_img9_2.png'
 import p_img10_1 from './p_img10_1.png'
 import p_img10_2 from './p_img10_2.png'
-import p_img11 from './p_img11.png'
-import p_img12 from './p_img12.png'
-import p_img13 from './p_img13.png'
-import p_img14 from './p_img14.png'
-import p_img15 from './p_img15.png'
-import p_img16 from './p_img16.png'
+import p_img11_1 from './p_img11_1.png'
+import p_img11_2 from './p_img11_2.png'
+import p_img11_3 from './p_img11_3.png'
+import p_img12_1 from './p_img12_1.png'
+import p_img12_2 from './p_img12_2.png'
+import p_img12_3 from './p_img12_3.png'
+import p_img13_1 from './p_img13_1.png'
+import p_img13_2 from './p_img13_2.png'
+import p_img14_1 from './p_img14_1.png'
+import p_img14_2 from './p_img14_2.png'
+import p_img14_3 from './p_img14_3.png'
+import p_img15_1 from './p_img15_1.png'
+import p_img15_2 from './p_img15_2.png'
+import p_img15_3 from './p_img15_3.png'
+import p_img16_1 from './p_img16_1.png'
+import p_img16_2 from './p_img16_2.png'
 import p_img17 from './p_img17.png'
 import p_img18 from './p_img18.png'
 import p_img19 from './p_img19.png'
@@ -67,7 +77,7 @@ import star_dull_icon from './star_dull_icon.png'
 import star_icon from './star_icon.png'
 import support_img from './support_img.png'
 import menu_icon from './menu_icon.png'
-// import about_img from './about_img.png'
+import about_img from './about_img.png'
 import contact_img from './contact_img.png'
 import razorpay_logo from './razorpay_logo.png'
 import stripe_logo from './stripe_logo.png'
@@ -86,7 +96,7 @@ export const assets = {
     bin_icon,
     support_img,
     menu_icon,
-    // about_img,
+    about_img,
     contact_img,
     razorpay_logo,
     stripe_logo,
@@ -423,7 +433,7 @@ export const products = [
         benefits: ["Deep cleansing", "Detoxifies skin", "Controls oil", "Prevents acne"],
         stockStatus: "In Stock",
         price: 120,
-        image: [p_img11],
+        image: [p_img11_1, p_img11_2, p_img11_3],
         category: "Soap",
         subCategory: "Skincare",
         sizes: ["S", "M", "L"],
@@ -452,7 +462,7 @@ export const products = [
         benefits: ["Antiseptic properties", "Soothes skin", "Rich lather", "Aromatic fragrance"],
         stockStatus: "In Stock",
         price: 150,
-        image: [p_img12],
+        image: [p_img12_1, p_img12_2, p_img12_3],
         category: "Soap",
         subCategory: "Skincare",
         sizes: ["S", "M", "L", "XL"],
@@ -487,7 +497,7 @@ export const products = [
         benefits: ["Moisturizes skin", "Antioxidant properties", "Calming fragrance", "Gentle cleansing"],
         stockStatus: "In Stock",
         price: 130,
-        image: [p_img13],
+        image: [p_img13_1,p_img13_2],
         category: "Soap",
         subCategory: "Skincare",
         sizes: ["S", "M", "L", "XL"],
@@ -516,7 +526,7 @@ export const products = [
         benefits: ["Gentle cleansing", "Fun fragrance", "Moisturizes skin", "Tear-free formula"],
         stockStatus: "Low Stock",
         price: 160,
-        image: [p_img14],
+        image: [p_img14_1, p_img14_2, p_img14_3],
         category: "Soap",
         subCategory: "Skincare",
         sizes: ["S", "M", "L", "XL"],
@@ -551,7 +561,7 @@ export const products = [
         benefits: ["Antibacterial", "Treats acne", "Soothes irritation", "Purifies skin"],
         stockStatus: "In Stock",
         price: 140,
-        image: [p_img15],
+        image: [p_img15_1, p_img15_2, p_img15_3],
         category: "Soap",
         subCategory: "Skincare",
         sizes: ["S", "M", "L", "XL"],
@@ -580,7 +590,7 @@ export const products = [
         benefits: ["Fun fragrance", "Gentle cleansing", "Moisturizes skin", "Encourages bathing"],
         stockStatus: "In Stock",
         price: 170,
-        image: [p_img16],
+        image: [p_img16_1, p_img16_2],
         category: "Soap",
         subCategory: "Skincare",
         sizes: ["S", "M", "L", "XL"],
