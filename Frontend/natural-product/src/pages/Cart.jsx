@@ -1,10 +1,9 @@
-
 import React, { useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { toast } from 'react-toastify';
 import Title from '../components/Title';
 import { assets } from '../assets/assets';
-import {useNavigate} from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { updateQuantity, removeFromCart } from '../redux/shopSlice';
 import CartTotal from '../components/CartTotal';
 
@@ -85,25 +84,28 @@ const Cart = () => {
           ) : (
             cartData.map((item, index) => {
               const productData = products.find((product) => product._id === item._id);
+              if (!productData || !productData.price || !productData.price[item.size]) {
+                return null; // Skip rendering if product or price is missing
+              }
               return (
                 <div
-                  key={index}
+                  key={`${item._id}-${item.size}`}
                   className="border-t border-b border-gray-200 py-4 sm:py-6 grid grid-cols-[3fr_1fr_0.5fr] sm:grid-cols-[4fr_2fr_1fr] items-center gap-4 sm:gap-6 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow"
                 >
                   <div className="flex items-center gap-4 sm:gap-6">
                     <img
                       className="w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 object-contain rounded-lg bg-gray-100 p-2"
-                      src={productData.image[0]}
+                      src={productData.image && productData.image[0] ? productData.image[0] : assets.placeholder_image}
                       alt={`${productData.name} image`}
                     />
                     <div className="space-y-1 sm:space-y-2">
                       <p className="text-base sm:text-lg md:text-xl font-medium text-gray-900">
-                        {productData.name}
+                        {productData.name || 'Unnamed Product'}
                       </p>
                       <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 text-xs sm:text-sm md:text-base">
                         <p className="font-medium text-gray-700">
                           {currency}
-                          {productData.price.toFixed(2)}
+                          {productData.price[item.size].toFixed(2)}
                         </p>
                         <p className="text-gray-600">Size: {item.size}</p>
                       </div>
@@ -141,38 +143,41 @@ const Cart = () => {
             <div className="modal-content">
               <div className="modal-body text-center">
                 <p className="text-sm sm:text-base text-gray-600">
-                 Are you sure you want to remove this item(s) from your cart?
+                  Are you sure you want to remove this item(s) from your cart?
                 </p>
               </div>
               <div className="modal-footer border-0 flex justify-end gap-3">
-  <button
-    type="button"
-    className="px-4 py-2 text-sm sm:text-base font-medium rounded-md border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors duration-200"
-    onClick={closeRemoveModal}
-  >
-    CANCEL
-  </button>
-  <button
-    type="button"
-    className="px-4 py-2 text-sm sm:text-base font-medium rounded-md border border-transparent bg-red-600 text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors duration-200"
-    onClick={confirmRemove}
-  >
-    REMOVE
-  </button>
-</div>
+                <button
+                  type="button"
+                  className="px-4 py-2 text-sm sm:text-base font-medium rounded-md border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors duration-200"
+                  onClick={closeRemoveModal}
+                >
+                  CANCEL
+                </button>
+                <button
+                  type="button"
+                  className="px-4 py-2 text-sm sm:text-base font-medium rounded-md border border-transparent bg-red-600 text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors duration-200"
+                  onClick={confirmRemove}
+                >
+                  REMOVE
+                </button>
+              </div>
             </div>
           </div>
         </div>
       )}
       {isModalOpen && <div className="modal-backdrop fade show"></div>}
-      <div className='flex justify-end my-20'>
-        <div className='w-full sm:w-[450px]'>
-         <CartTotal/>
-         <div className='w-full text-end'>
-             <button onClick={() => navigate('/place-order')} className='cursor-pointer bg-black text-white text-sm my-8 px-8 py-3'>PROCEED TO CHECKOUT
-
-             </button>
-         </div>
+      <div className="flex justify-end my-20">
+        <div className="w-full sm:w-[450px]">
+          <CartTotal />
+          <div className="w-full text-end">
+            <button
+              onClick={() => navigate('/place-order')}
+              className="cursor-pointer bg-black text-white text-sm my-8 px-8 py-3"
+            >
+              PROCEED TO CHECKOUT
+            </button>
+          </div>
         </div>
       </div>
     </div>
