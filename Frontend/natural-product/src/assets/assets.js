@@ -174,7 +174,7 @@ export const products = [
         description: "A mild, tear-free shampoo for kids, enriched with natural ingredients to keep hair soft and tangle-free.",
         ingredients: ["Chamomile", "Oat Extract", "Coconut Oil", "Aloe Vera", "Vitamin E"],
         benefits: ["Tear-free formula", "Gentle cleansing", "Reduces tangles", "Safe for daily use"],
-        stockStatus: "Low Stock",
+        stockStatus: "In Stock",
         price: { S: 23, L: 50, XL :130 },
         image: [p_img3_1, p_img3_3],
         category: "Shampoo",
