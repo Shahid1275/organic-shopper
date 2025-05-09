@@ -2,8 +2,11 @@ import React from 'react';
 import Slider from 'react-slick';
 import 'slick-carousel/slick/slick.css';
 import 'slick-carousel/slick/slick-theme.css';
+import { useNavigate } from 'react-router-dom';
 // Product data with local image paths
+
 const products = [
+
   {
     id: 1,
     name: 'Lunar Glow Face Elixir',
@@ -37,6 +40,7 @@ const products = [
 ];
 
 const HeroSlider = () => {
+  const navigate = useNavigate();
   // Slider settings
   const settings = {
     dots: true,
@@ -86,7 +90,7 @@ const HeroSlider = () => {
               <div className="w-full md:w-1/2 text-center md:text-left p-6">
                 <h2 className="text-3xl font-bold text-gray-800 mb-4">{product.name}</h2>
                 <p className="text-lg text-gray-600 mb-6">{product.description}</p>
-                <button  className=" cursor-pointer px-6 py-2 bg-green-600 text-white rounded-full hover:bg-green-700 transition-colors">
+                <button onClick={()=>navigate('/collection')} className=" cursor-pointer px-6 py-2 bg-green-600 text-white rounded-full hover:bg-green-700 transition-colors">
                   Shop Now
                 </button>
               </div>
