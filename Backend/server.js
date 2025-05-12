@@ -4,22 +4,30 @@ import cors from 'cors';
 import connectDB from './config/db.js';
 import connectCloudinary from './config/cloudinary.js';
 import userRouter from './routes/userRoutes.js';
+import productRouter from './routes/ProductRoutes.js';
 const app = express();
 
 
 const Port = 3000;
 connectDB();
 connectCloudinary();
+
 //middlewares 
 app.use(express.json());
 app.use(cors())
 
+
 //api user routes
 app.use("/api/user", userRouter);
+
+
+// api to get product routes
+app.use("/api/product",productRouter);
 
 app.get("/", (req,res) =>{
     res.send("Backend is working Good!");
 })
+
 
 app.listen(Port, () =>{
     console.log("App is working Good!");
