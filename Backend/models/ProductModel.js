@@ -1,62 +1,3 @@
-// import mongoose from "mongoose";
-
-// const productSchema = new mongoose.Schema({
-//     name: {
-//         type: String,
-//         required: true,
-//     },
-//     description: {
-//         type: String,
-//         required: true,
-//     },
-//     ingredients: {
-//         type: Array,
-//         required: true,
-//     },
-//     benefits: {
-//         type: Array,
-//         required: true,
-//     },
-//     stockStatus: {
-//         type: String,
-//         required: true,
-//     },
-//     price: {  
-//         type: Number,
-//         required: true,
-//     },
-//     image: {
-//         type: Array,
-//         required: true,
-//     },
-//     category: {
-//         type: String,
-//         required: true,
-//     },
-//     subCategory: {
-//         type: String,
-//         required: true,
-//     },
-//     sizes: {
-//         type: Array,
-//         required: true,
-//     },
-//     date: {
-//         type: Number,
-//         required: true,
-//     },
-//     bestseller: {
-//         type: Boolean,
-//     },
-//     reviews: {
-//         type: Array,
-//         required: true,
-//     }
-// })
-
-// const productModel = mongoose.models.product || mongoose.model('Product', productSchema);
-
-// export default productModel;
 import mongoose from "mongoose";
 
 const productSchema = new mongoose.Schema({
@@ -81,7 +22,11 @@ const productSchema = new mongoose.Schema({
         required: true,
     },
     price: {  
-        type: Map, 
+        type: Map,
+        of: {
+            value: { type: Number, required: true }, // Numeric value for calculations
+            display: { type: String, required: true } // Formatted string with currency
+        },
         required: true,
     },
     image: {
@@ -109,7 +54,7 @@ const productSchema = new mongoose.Schema({
         default: false, 
     },
     reviews: {
-        type: [{ // CHANGED: Specified schema for Array of review objects
+        type: [{
             name: { type: String, required: true },
             rating: { type: Number, required: true },
             comment: { type: String, required: true },
@@ -117,7 +62,7 @@ const productSchema = new mongoose.Schema({
         }],
         required: true,
     }
-})
+});
 
 const productModel = mongoose.models.Product || mongoose.model('Product', productSchema);
 

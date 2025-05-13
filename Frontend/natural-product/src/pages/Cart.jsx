@@ -105,7 +105,7 @@ const Cart = () => {
                       <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 text-xs sm:text-sm md:text-base">
                         <p className="font-medium text-gray-700">
                           {currency}
-                          {productData.price[item.size].toFixed(2)}
+                          {(productData.price[item.size].value || 0).toFixed(2)}
                         </p>
                         <p className="text-gray-600">Size: {item.size}</p>
                       </div>
