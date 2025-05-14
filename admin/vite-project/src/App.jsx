@@ -1,35 +1,46 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import React, { useState, useEffect } from 'react'; // Added useEffect
+import { Route, Routes, Navigate, useNavigate } from 'react-router-dom'; // Added useNavigate
+import List from './pages/List';
+import Add from './pages/Add';
+import Orders from './pages/Orders';
+import Navbar from './components/Navbar';
+import SideBar from './components/SideBar';
+import Login from './components/Login';
+import { ToastContainer } from 'react-toastify';
+export const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
-function App() {
-  const [count, setCount] = useState(0)
+const App = () => {
+  const navigate = useNavigate(); // Initialize useNavigate
+  const [token, setToken] = useState(localStorage.getItem('token') || '');
+
+  useEffect(() => {
+    localStorage.setItem('token', token);
+  }, [token]);
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
-}
+    <div className='bg-gray-50 min-h-screen'>
+      <ToastContainer />
+      {token === '' ? (
+        <Login setToken={setToken} />
+      ) : (
+        <>
+          <Navbar setToken={setToken} />
+          <hr />
+          <div className='flex'>
+            <SideBar />
+            <div className='flex-1 p-4'>
+              <Routes>
+                <Route path="/" element={<Navigate to="/add" />} /> {/* Fixed syntax */}
+                <Route path="/list" element={<List token={token} />} />
+                <Route path="/add" element={<Add token={token} />} />
+                <Route path="/orders" element={<Orders token={token} />} />
+              </Routes>
+            </div>
+          </div>
+        </>
+      )}
+    </div>
+  );
+};
 
-export default App
+export default App;
