@@ -5,6 +5,7 @@ import connectDB from './config/db.js';
 import connectCloudinary from './config/cloudinary.js';
 import userRouter from './routes/userRoutes.js';
 import productRouter from './routes/ProductRoutes.js';
+import reviewRouter from './routes/reviewRoutes.js';
 const app = express();
 
 
@@ -20,6 +21,8 @@ app.use(cors())
 //api user routes
 app.use("/api/user", userRouter);
 
+//review routes 
+app.use("/api/review", reviewRouter);
 
 // api to get product routes
 app.use("/api/product",productRouter);

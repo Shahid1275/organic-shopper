@@ -143,20 +143,30 @@ const loginUser = async (req, res) => {
 
 const adminLogin = async(req,res) =>{
     try{
+       // First check if req.body exists
+       if (!req.body) {
+         return res.status(400).json({
+           success: false,
+           message: "Request body is missing",
+         });
+       }
+       
        const {email,password} = req.body;
+       console.log('Request Body:', req.body);
        
        if (!email || !password) {
-      return res.status(400).json({
-        success: false,
-        message: "Email and password are required",
-      });
-    }
+         return res.status(400).json({
+           success: false,
+           message: "Email and password are required",
+         });
+       }
+       
        if(email === process.env.ADMIN_EMAIL && password === process.env.ADMIN_PASSWORD){
-        const token = jwt.sign({email,password}, process.env.JWT_SECRET, {expiresIn:TOKEN_EXPIRATION});
-           return res.status(200).json({success:true, message:"Admin login successful",token});
+         const token = jwt.sign({email,password}, process.env.JWT_SECRET, {expiresIn:TOKEN_EXPIRATION});
+         return res.status(200).json({success:true, message:"Admin login successful",token});
        }
        else{
-           return res.status(401).json({success:false, message:"Invalid credentials"});
+         return res.status(401).json({success:false, message:"Invalid credentials"});
        }
     }catch(error){
        console.error("Admin login error:", error);
