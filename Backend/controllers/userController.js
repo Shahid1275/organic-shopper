@@ -1,6 +1,7 @@
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import userModel from "../models/userModel.js";
+
 // Validation constants
 const MIN_PASSWORD_LENGTH = 8;
 const TOKEN_EXPIRATION = "1d";
@@ -140,37 +141,57 @@ const loginUser = async (req, res) => {
   }
 };
 
-
-const adminLogin = async(req,res) =>{
-    try{
-       // First check if req.body exists
-       if (!req.body) {
-         return res.status(400).json({
-           success: false,
-           message: "Request body is missing",
-         });
-       }
-       
-       const {email,password} = req.body;
-       console.log('Request Body:', req.body);
-       
-       if (!email || !password) {
-         return res.status(400).json({
-           success: false,
-           message: "Email and password are required",
-         });
-       }
-       
-       if(email === process.env.ADMIN_EMAIL && password === process.env.ADMIN_PASSWORD){
-         const token = jwt.sign({email,password}, process.env.JWT_SECRET, {expiresIn:TOKEN_EXPIRATION});
-         return res.status(200).json({success:true, message:"Admin login successful",token});
-       }
-       else{
-         return res.status(401).json({success:false, message:"Invalid credentials"});
-       }
-    }catch(error){
-       console.error("Admin login error:", error);
-       return res.status(500).json({success:false, error:"An unexpected error occurred during admin login"});
+const adminLogin = async (req, res) => {
+  try {
+    // First check if req.body exists
+    if (!req.body) {
+      return res.status(400).json({
+        success: false,
+        message: "Request body is missing",
+      });
     }
-}
-export { registerUser, loginUser,adminLogin };
+
+    const { email, password } = req.body;
+    console.log("Request Body:", req.body);
+    // Debug environment variables
+    console.log("ADMIN_EMAIL from env:", process.env.ADMIN_EMAIL);
+    console.log("ADMIN_PASSWORD from env:", process.env.ADMIN_PASSWORD);
+
+    if (!email || !password) {
+      return res.status(400).json({
+        success: false,
+        message: "Email and password are required",
+      });
+    }
+
+    // Trim inputs to avoid whitespace issues
+    const trimmedEmail = email.trim();
+    const trimmedPassword = password.trim();
+    const envEmail = process.env.ADMIN_EMAIL ? process.env.ADMIN_EMAIL.trim() : "";
+    const envPassword = process.env.ADMIN_PASSWORD ? process.env.ADMIN_PASSWORD.trim() : "";
+
+    // Log string lengths and comparison details
+    console.log("Email length (input):", trimmedEmail.length, "Email length (env):", envEmail.length);
+    console.log("Password length (input):", trimmedPassword.length, "Password length (env):", envPassword.length);
+    console.log("Comparing email:", trimmedEmail === envEmail);
+    console.log("Comparing password:", trimmedPassword === envPassword);
+
+    // Log the character codes to detect hidden characters
+    console.log("Input email chars:", trimmedEmail.split("").map(char => char.charCodeAt(0)));
+    console.log("Env email chars:", envEmail.split("").map(char => char.charCodeAt(0)));
+    console.log("Input password chars:", trimmedPassword.split("").map(char => char.charCodeAt(0)));
+    console.log("Env password chars:", envPassword.split("").map(char => char.charCodeAt(0)));
+
+    if (trimmedEmail === envEmail && trimmedPassword === envPassword) {
+      const token = jwt.sign({ email: trimmedEmail }, process.env.JWT_SECRET, { expiresIn: TOKEN_EXPIRATION });
+      return res.status(200).json({ success: true, message: "Admin login successful", token });
+    } else {
+      return res.status(401).json({ success: false, message: "Invalid credentials" });
+    }
+  } catch (error) {
+    console.error("Admin login error:", error);
+    return res.status(500).json({ success: false, message: "An unexpected error occurred during admin login" });
+  }
+};
+
+export { registerUser, loginUser, adminLogin };

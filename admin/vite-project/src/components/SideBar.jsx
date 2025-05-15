@@ -5,7 +5,7 @@ import { assets } from '../assets/assets'
 
 const SideBar = () => {
   return (
-   <div className="bg-gray-500 text-white h-[120vh] fixed lg:static left-0 top-12 z-40 shadow-lg transition-all duration-300 ease-in-out">
+   <div className="bg-gray-500 text-white h-[120vh] fixed lg:static left-0 top-11 z-40 shadow-lg transition-all duration-300 ease-in-out">
 
       <nav className="space-y-2 p-4">
         <NavLink

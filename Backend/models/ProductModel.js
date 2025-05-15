@@ -1,11 +1,12 @@
 import mongoose from "mongoose";
 
 const reviewSchema = new mongoose.Schema({
-  userId: { type: String, required: true }, // Track the user who posted the review
-  name: { type: String, required: true }, // Reviewer's name
-  rating: { type: Number, required: true, min: 1, max: 5 }, // Rating between 1 and 5
-  comment: { type: String, required: true }, // Review comment
-  date: { type: Number, required: true, default: Date.now }, // Timestamp of the review
+  _id: { type: mongoose.Schema.Types.ObjectId, auto: true },
+  userId: { type: String, required: true },
+  name: { type: String, required: false },
+  rating: { type: Number, required: true, min: 1, max: 5 },
+  comment: { type: String, required: true },
+  date: { type: Number, required: true, default: Date.now },
 });
 
 const productSchema = new mongoose.Schema({
@@ -32,8 +33,8 @@ const productSchema = new mongoose.Schema({
   price: {
     type: Map,
     of: {
-      value: { type: Number, required: true }, // Numeric value for calculations
-      display: { type: String, required: true }, // Formatted string with currency
+      value: { type: Number, required: true },
+      display: { type: String, required: true },
     },
     required: true,
   },
@@ -49,26 +50,22 @@ const productSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  sizes: {
-    type: [String],
-    required: true,
-  },
   date: {
     type: Number,
     required: true,
-    default: Date.now, // Default to current timestamp if not provided
+    default: Date.now,
   },
   bestseller: {
     type: Boolean,
     default: false,
   },
   reviews: {
-    type: [reviewSchema], // Use the reviewSchema as a subdocument
-    default: [], // Allow empty reviews array by default
-    required: false, // Not required at creation
+    type: [reviewSchema],
+    default: [],
+    required: false,
   },
 });
 
-const productModel = mongoose.models.Product || mongoose.model('Product', productSchema);
+const productModel = mongoose.models.Product || mongoose.model("Product", productSchema);
 
 export default productModel;

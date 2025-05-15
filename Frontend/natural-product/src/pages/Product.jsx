@@ -3,40 +3,73 @@ import { useParams } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { assets } from '../assets/assets';
 import RelatedProducts from '../components/RelatedProducts';
+import DescriptionAndReviews from './DescriptionAndReviews';
 import { addToCart } from '../redux/shopSlice';
 import { toast } from 'react-toastify';
+import axios from 'axios';
 
 const Product = () => {
   const { productId } = useParams();
-  const { products } = useSelector((state) => state.shop);
+  const { products, user, currency } = useSelector((state) => state.shop);
   const dispatch = useDispatch();
   const [productData, setProductData] = useState(null);
   const [mainImage, setMainImage] = useState('');
   const [selectedSize, setSelectedSize] = useState('');
-  const [activeTab, setActiveTab] = useState('description');
-  const { currency } = useSelector((state) => state.shop);
+
   useEffect(() => {
     const product = products.find((item) => item._id === productId);
     if (product) {
-      setProductData(product);
+      const sizes = product.sizes || Object.keys(product.price || {});
+      setProductData({ ...product, sizes });
       setMainImage(product.image[0] || '');
-      setSelectedSize(product.sizes?.[0] || '');
+      setSelectedSize(sizes[0] || '');
     }
   }, [productId, products]);
 
   const handleAddToCart = () => {
     if (productData.stockStatus === 'In Stock' && selectedSize) {
-      dispatch(addToCart({ itemId: productData._id, size: selectedSize }));
-      toast.success('Item added to cart!', {
-        position: 'top-right',
-        autoClose: 3000,
-      });
+      dispatch(addToCart({
+        itemId: productData._id,
+        size: selectedSize,
+        price: getPriceForSize(selectedSize)
+      }));
+      toast.success('Item added to cart!');
     } else {
-      toast.error('Please select a size or check stock availability.', {
-        position: 'top-right',
-        autoClose: 3000,
-      });
+      toast.error('Please select a size or check stock availability.');
     }
+  };
+
+  const getPriceForSize = (size) => {
+    if (!productData.price || !productData.price[size]) return 0;
+    return productData.price[size].value || Number(productData.price[size].display) || 0;
+  };
+
+  const formatPriceWithCurrency = (price, sizes) => {
+    if (!price || typeof price !== 'object') {
+      return { S: { display: `${currency}0.00`, value: 0 } };
+    }
+
+    const formattedPrice = {};
+    sizes.forEach(size => {
+      if (price[size]) {
+        const value = Number(price[size].value || price[size].display || 0);
+        formattedPrice[size] = {
+          display: `${currency}${value.toFixed(2)}`,
+          value,
+        };
+      }
+    });
+
+    return formattedPrice;
+  };
+
+  const getCurrentPrice = () => {
+    const size = selectedSize || productData.sizes?.[0] || 'S';
+    if (!productData.price || !productData.price[size]) {
+      return `${currency}0.00`;
+    }
+    const value = getPriceForSize(size);
+    return `${currency}${value.toFixed(2)}`;
   };
 
   if (!productData) {
@@ -47,79 +80,8 @@ const Product = () => {
     );
   }
 
-  const DescriptionAndReviews = () => (
-    <div>
-      <div className="flex gap-6 border-b border-gray-200">
-        <button
-          className={`pb-2 text-sm font-medium transition-colors ${
-            activeTab === 'description'
-              ? 'border-b-2 border-gray-900 text-gray-900'
-              : 'text-gray-500 hover:text-gray-700'
-          }`}
-          onClick={() => setActiveTab('description')}
-        >
-          Description
-        </button>
-        <button
-          className={`pb-2 text-sm font-medium transition-colors ${
-            activeTab === 'reviews'
-              ? 'border-b-2 border-gray-900 text-gray-900'
-              : 'text-gray-500 hover:text-gray-700'
-          }`}
-          onClick={() => setActiveTab('reviews')}
-        >
-          Reviews ({productData.reviews?.length || 0})
-        </button>
-      </div>
-      <div className="mt-6 text-sm leading-relaxed text-gray-600">
-        {activeTab === 'description' ? (
-          <div>
-            <p>{productData.description}</p>
-            <p className="mt-4">
-              E-commerce websites typically display products or services along with detailed descriptions, images, prices, and any available variations (e.g., sizes, colors). Each product usually has its own dedicated page with relevant information.
-            </p>
-          </div>
-        ) : (
-          <div className="flex flex-col gap-6">
-            {productData.reviews?.length > 0 ? (
-              productData.reviews.map((review, index) => (
-                <div key={index}>
-                  <div className="flex items-center gap-2">
-                    <div className="flex">
-                      {[1, 2, 3, 4, 5].map((star) => (
-                        <img
-                          key={star}
-                          src={star <= review.rating ? assets.star_icon : assets.star_dull_icon}
-                          alt="Star"
-                          className="h-4 w-4"
-                        />
-                      ))}
-                    </div>
-                    <p className="text-sm font-medium text-gray-900">{review.name}</p>
-                    <p className="text-xs text-gray-500">
-                      {new Date(review.date).toLocaleDateString('en-US', {
-                        year: 'numeric',
-                        month: 'long',
-                        day: 'numeric',
-                      })}
-                    </p>
-                  </div>
-                  <p className="mt-2">{review.comment}</p>
-                </div>
-              ))
-            ) : (
-              <p>No reviews yet.</p>
-            )}
-          </div>
-        )}
-      </div>
-    </div>
-  );
-
-  // Get the price for the selected size
-  const currentPrice = selectedSize
-    ? productData.price[selectedSize]?.display
-    : productData.price[productData.sizes[0]]?.display || '$0.00';
+  const formattedPrice = formatPriceWithCurrency(productData.price, productData.sizes);
+  const currentPrice = getCurrentPrice();
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
@@ -153,38 +115,29 @@ const Product = () => {
             </div>
           </div>
           <div className="hidden lg:block">
-            <DescriptionAndReviews />
+            <DescriptionAndReviews
+              productId={productId}
+              description={productData.description}
+              user={user}
+            />
           </div>
         </div>
         <div className="flex flex-col gap-6">
           <div>
             <h1 className="text-3xl font-semibold text-gray-900">{productData.name}</h1>
             <div className="mt-2 flex items-center gap-2">
-              <div className="flex">
-                {[1, 2, 3, 4, 5].map((star) => (
-                  <img
-                    key={star}
-                    src={
-                      star <=
-                      Math.round(
-                        productData.reviews?.reduce((acc, r) => acc + r.rating, 0) /
-                          (productData.reviews?.length || 1)
-                      )
-                        ? assets.star_icon
-                        : assets.star_dull_icon
-                    }
-                    alt="Star"
-                    className="h-4 w-4"
-                  />
+              <div className="flex text-yellow-400">
+                {[...Array(5)].map((_, i) => (
+                  <span key={i}>☆</span>
                 ))}
               </div>
-              <p className="text-sm text-gray-600">({productData.reviews?.length || 0})</p>
+              <p className="text-sm text-gray-600">(0)</p>
             </div>
           </div>
           <p className="text-gray-600">{productData.description}</p>
           <div className="flex items-center gap-4">
             <p className="text-sm font-medium text-gray-600">Price:</p>
-            <p className="text-2xl font-bold text-gray-900">{currency}{currentPrice}</p>
+            <p className="text-2xl font-bold text-gray-900">{currentPrice}</p>
           </div>
           <div className="flex flex-col gap-2">
             <p className="text-sm text-gray-600">
@@ -202,18 +155,18 @@ const Product = () => {
           {productData.sizes && (
             <div className="flex flex-col gap-2">
               <p className="text-sm font-medium text-gray-900">Available Sizes:</p>
-              <div className="flex gap-2">
+              <div className="flex gap-2 flex-wrap">
                 {productData.sizes.map((size) => (
                   <button
                     key={size}
-                    className={`rounded-md border px-4 py-2 text-sm text-gray-700 transition ${
+                    className={`flex flex-col items-center rounded-md border px-4 py-2 text-sm text-gray-700 transition ${
                       selectedSize === size
                         ? 'border-gray-400 bg-gray-200'
                         : 'border-gray-300 hover:bg-gray-100'
                     }`}
                     onClick={() => setSelectedSize(size)}
                   >
-                    {size} 
+                    <span>{size}</span>
                   </button>
                 ))}
               </div>
@@ -271,7 +224,11 @@ const Product = () => {
         </div>
       </div>
       <div className="mt-8 lg:hidden">
-        <DescriptionAndReviews />
+        <DescriptionAndReviews
+          productId={productId}
+          description={productData.description}
+          user={user}
+        />
       </div>
       <RelatedProducts category={productData.category} subCategory={productData.subCategory} />
       <div className="mt-24"></div>
