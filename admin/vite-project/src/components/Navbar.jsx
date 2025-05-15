@@ -16,7 +16,7 @@ const Navbar = ({ setToken }) => {
       <img className='w-[max(10%,70px)]' src={assets.logo} alt="Company Logo" />
       <button
         onClick={handleLogout}
-        className='cursor-pointer bg-gray-600 text-white py-2 px-5 sm:px-7 sm:py-2 rounded-full text-xs sm:text-sm'
+        className='cursor-pointer bg-gray-600 text-white py-1 px-5 sm:px-7 sm:py-1 rounded-full text-xs sm:text-sm'
       >
         Logout
       </button>

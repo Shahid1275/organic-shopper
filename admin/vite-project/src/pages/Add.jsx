@@ -1,245 +1,302 @@
-// import React, { useState } from 'react';
-// import { backendUrl } from '../App';
+import React from "react";
+import { assets } from "../assets/assets";
+import { useState } from "react";
+
+const Add = () => {
+    const [image1, setImage1] = useState(false);
+    const [image2, setImage2] = useState(false);
+    const [image3, setImage3] = useState(false);
+    const [image4, setImage4] = useState(false);
+
+    const [name, setName] = useState('');
+    const [category, setCategory] = useState('');
+    const [price, setPrice] = useState('');
+    const [description, setDescription] = useState('');
+    const [stock, setStock] = useState('');
+    const [subcategory, setSubcategory] = useState('');
+    const [bestseller, setBestseller] = useState(false);
+    const [size, setSize] = useState('');
+    const [ingredients, setIngredients] = useState('');
+    const [benefits, setBenefits] = useState('');
+   
+  
+
+  return (
+    <form className="max-w-4xl mx-auto p-4 bg-white rounded-lg  ml-6 md:ml-12">
+      <h2 className="text-xl font-bold mb-4 text-gray-800">Add New Product</h2>
+
+      {/* Image Upload Section */}
+      <section className="mb-4">
+        <h3 className="mb-2 font-medium text-gray-700 text-sm">Upload Product Images</h3>
+        <div className="flex flex-wrap gap-3">
+          {[1, 2, 3, 4].map((num) => (
+            <label
+              key={num}
+              htmlFor={`image${num}`}
+              className="flex flex-col items-center justify-center w-24 h-24 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-blue-500 transition-colors sm:w-20 sm:h-20"
+            >
+              <img
+                className="w-10 opacity-60 sm:w-8"
+                src={assets.upload_area}
+                alt={`Upload area for image ${num}`}
+              />
+              <span className="text-xs text-gray-500 mt-1 sm:text-[10px]">Image {num}</span>
+              <input
+                type="file"
+                id={`image${num}`}
+                name={`image${num}`}
+                className="hidden"
+                accept="image/*"
+                required={num === 1} // At least one image is required
+              />
+            </label>
+          ))}
+        </div>
+      </section>
+
+      {/* Product Details Section */}
+      <section className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+        {/* Product Name */}
+        <div>
+          <label htmlFor="name" className="block mb-1 font-medium text-gray-700 text-sm sm:text-xs">
+            Product Name
+          </label>
+          <input
+            id="name"
+            name="name"
+            type="text"
+            placeholder="Enter product name (e.g., Men Volumizing Shampoo)"
+            className="w-full px-3 py-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-xs"
+            required
+          />
+        </div>
+
+        {/* Product Category */}
+        <div>
+          <label htmlFor="category" className="block mb-1 font-medium text-gray-700 text-sm sm:text-xs">
+            Product Category
+          </label>
+          <select
+            id="category"
+            name="category"
+            className="w-full px-3 py-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-xs"
+            required
+          >
+            <option value="">Select category</option>
+            <option value="Shampoo">Shampoo</option>
+            <option value="Soap">Soap</option>
+            <option value="Oil">Oil</option>
+            <option value="Cream">Cream</option>
+          </select>
+        </div>
+
+        {/* Product Sub-Category */}
+        <div>
+          <label htmlFor="subCategory" className="block mb-1 font-medium text-gray-700 text-sm sm:text-xs">
+            Product Sub-Category
+          </label>
+          <select
+            id="subCategory"
+            name="subCategory"
+            className="w-full px-3 py-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-xs"
+            required
+          >
+            <option value="">Select sub-category</option>
+            <option value="Haircare">Haircare</option>
+            <option value="Skincare">Skincare</option>
+            <option value="Moisturizer">Moisturizer</option>
+            <option value="Face Care">Face Care</option>
+          </select>
+        </div>
+
+        {/* Stock Status */}
+        <div>
+          <label htmlFor="stockStatus" className="block mb-1 font-medium text-gray-700 text-sm sm:text-xs">
+            Stock Status
+          </label>
+          <select
+            id="stockStatus"
+            name="stockStatus"
+            className="w-full px-3 py-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-xs"
+            required
+          >
+            <option value="">Select status</option>
+            <option value="In Stock">In Stock</option>
+            <option value="Out of Stock">Out of Stock</option>
+            <option value="Low Stock">Low Stock</option>
+          </select>
+        </div>
+
+        {/* Bestseller */}
+        <div>
+          <label htmlFor="bestseller" className="block mb-1 font-medium text-gray-700 text-sm sm:text-xs">
+            Bestseller
+          </label>
+          <select
+            id="bestseller"
+            name="bestseller"
+            className="w-full px-3 py-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-xs"
+            required
+          >
+            <option value="">Select option</option>
+            <option value="true">Yes</option>
+            <option value="false">No</option>
+          </select>
+        </div>
+
+        {/* Sizes */}
+        <div>
+          <label htmlFor="sizes" className="block mb-1 font-medium text-gray-700 text-sm sm:text-xs">
+            Size
+          </label>
+          <select
+            id="sizes"
+            name="sizes"
+            className="w-full px-3 py-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-xs"
+            required
+          >
+            <option value="">Select size</option>
+            <option value="S">S</option>
+            <option value="M">M</option>
+            <option value="L">L</option>
+            <option value="XL">XL</option>
+          </select>
+        </div>
+      </section>
+
+      {/* Price Section */}
+      <section className="mb-4 grid grid-cols-4 gap-4 sm:grid-cols-2">
+        {["S", "M", "L", "XL"].map((size) => (
+          <div key={size}>
+            <label htmlFor={`price${size}`} className="block mb-1 font-medium text-gray-700 text-sm sm:text-xs">
+              Price ({size})
+            </label>
+            <input
+              id={`price${size}`}
+              name={`price${size}`}
+              type="number"
+              placeholder="0.00"
+              step="1.00"
+              min="5"
+              className="w-full px-3 py-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-xs"
+              required
+            />
+          </div>
+        ))}
+      </section>
+
+      {/* Ingredients */}
+      <section className="mb-4">
+        <label htmlFor="ingredients" className="block mb-1 font-medium text-gray-700 text-sm sm:text-xs">
+          Ingredients
+        </label>
+        <input
+          id="ingredients"
+          name="ingredients"
+          type="text"
+          placeholder="Enter ingredients (e.g., Biotin, Caffeine, Peppermint Oil)"
+          className="w-full px-3 py-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-xs"
+          required
+        />
+      </section>
+
+      {/* Benefits */}
+      <section className="mb-4">
+        <label htmlFor="benefits" className="block mb-1 font-medium text-gray-700 text-sm sm:text-xs">
+          Benefits
+        </label>
+        <input
+          id="benefits"
+          name="benefits"
+          type="text"
+          placeholder="Enter benefits (e.g., Adds volume, Reduces thinning)"
+          className="w-full px-3 py-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-xs"
+          required
+        />
+      </section>
+
+      {/* Description */}
+      <section className="mb-4">
+        <label htmlFor="description" className="block mb-1 font-medium text-gray-700 text-sm sm:text-xs">
+          Product Description
+        </label>
+        <textarea
+          id="description"
+          name="description"
+          rows={2}
+          placeholder="Enter detailed product description (e.g., A specially formulated shampoo for men...)"
+          className="w-full px-3 py-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-xs"
+          required
+        />
+      </section>
+
+      {/* Submit Button */}
+      <div className="flex justify-end">
+        <button
+          type="submit"
+          className="px-5 py-1 bg-blue-600 text-white font-medium rounded-md cursor-pointer hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 transition-colors text-sm sm:text-xs"
+        >
+          Add Product
+        </button>
+      </div>
+    </form>
+  );
+};
+
+export default Add;
+// import React from "react";
+// import { assets } from "../assets/assets";
 
 // const Add = () => {
-//   const [formData, setFormData] = useState({
-//     name: '',
-//     description: '',
-//     ingredients: [],
-//     benefits: [],
-//     stockStatus: 'In Stock',
-//     price: { S: 0, M: 0, L: 0, XL: 0 },
-//     image: [],
-//     category: 'Shampoo',
-//     subCategory: 'Haircare',
-//     sizes: [],
-//     bestseller: false,
-//     reviews: [],
-//   });
-
-//   const [newReview, setNewReview] = useState({ name: '', rating: 5, comment: '', date: Date.now() });
-
-//   const handleInputChange = (e) => {
-//     const { name, value } = e.target;
-//     setFormData((prev) => ({ ...prev, [name]: value }));
-//   };
-
-//   const handleArrayInput = (e, field) => {
-//     const values = e.target.value.split(',').map((item) => item.trim());
-//     setFormData((prev) => ({ ...prev, [field]: values }));
-//   };
-
-//   const handlePriceChange = (size, value) => {
-//     setFormData((prev) => ({
-//       ...prev,
-//       price: { ...prev.price, [size]: Number(value) },
-//     }));
-//   };
-
-//   const handleFileChange = (e) => {
-//     setFormData((prev) => ({ ...prev, image: Array.from(e.target.files) }));
-//   };
-
-//   const handleSizeChange = (size) => {
-//     setFormData((prev) => {
-//       const sizes = prev.sizes.includes(size)
-//         ? prev.sizes.filter((s) => s !== size)
-//         : [...prev.sizes, size];
-//       return { ...prev, sizes };
-//     });
-//   };
-
-//   const handleBestsellerChange = () => {
-//     setFormData((prev) => ({ ...prev, bestseller: !prev.bestseller }));
-//   };
-
-//   const handleReviewChange = (e) => {
-//     const { name, value } = e.target;
-//     setNewReview((prev) => ({ ...prev, [name]: name === 'rating' ? Number(value) : value }));
-//   };
-
-//   const addReview = () => {
-//     setFormData((prev) => ({
-//       ...prev,
-//       reviews: [...prev.reviews, { ...newReview, date: Date.now() }],
-//     }));
-//     setNewReview({ name: '', rating: 5, comment: '', date: Date.now() });
-//   };
-
-//   const handleSubmit = async (e) => {
-//     e.preventDefault();
-
-//     const token = localStorage.getItem('token'); // Retrieve token from localStorage
-//     if (!token) {
-//       alert('No token found. Please log in again.');
-//       window.location.href = '/'; // Redirect to login if token is missing
-//       return;
-//     }
-
-//     const data = new FormData();
-//     data.append('name', formData.name);
-//     data.append('description', formData.description);
-//     data.append('ingredients', JSON.stringify(formData.ingredients));
-//     data.append('benefits', JSON.stringify(formData.benefits));
-//     data.append('stockStatus', formData.stockStatus);
-//     data.append('price', JSON.stringify(formData.price));
-//     formData.image.forEach((file, index) => {
-//       data.append('image', file);
-//     });
-//     data.append('category', formData.category);
-//     data.append('subCategory', formData.subCategory);
-//     data.append('sizes', JSON.stringify(formData.sizes));
-//     data.append('bestseller', formData.bestseller);
-//     data.append('reviews', JSON.stringify(formData.reviews));
-
-//     try {
-//       const response = await fetch(`${backendUrl}/product/add`, {
-//         method: 'POST',
-//         headers: {
-//           'Authorization': `Bearer ${token}`, // Include token in the Authorization header
-//         },
-//         body: data,
-//       });
-//       const result = await response.json();
-//       if (result.success) {
-//         alert('Product added successfully!');
-//         setFormData({
-//           name: '',
-//           description: '',
-//           ingredients: [],
-//           benefits: [],
-//           stockStatus: 'In Stock',
-//           price: { S: 0, M: 0, L: 0, XL: 0 },
-//           image: [],
-//           category: 'Shampoo',
-//           subCategory: 'Haircare',
-//           sizes: [],
-//           bestseller: false,
-//           reviews: [],
-//         });
-//       } else {
-//         alert('Failed to add product: ' + result.message);
-//       }
-//     } catch (error) {
-//       alert('Error adding product: ' + error.message);
-//       if (error.message.includes('401') || error.message.includes('Unauthorized')) {
-//         alert('Session expired. Please log in again.');
-//         localStorage.removeItem('token');
-//         window.location.href = '/'; // Redirect to login on 401 Unauthorized
-//       }
-//     }
-//   };
 
 //   return (
-//     <div className="p-6 bg-gray-50 min-h-screen">
-//       <h2 className="text-2xl font-bold text-gray-800 mb-6">Add New Product</h2>
-//       <form onSubmit={handleSubmit} className="bg-white p-6 rounded-lg shadow-md space-y-6">
-//         {/* Name */}
+//     <form  className="max-w-4xl mx-auto p-4 bg-white rounded-lg ml-6 md:ml-12">
+//       <h2 className="text-xl font-bold mb-4 text-gray-800">Add New Product</h2>
+
+//       {/* Image Upload Section */}
+//       <div className="mb-4">
+//         <p className="mb-2 font-medium text-gray-700">Upload Product Images</p>
+//         <div className="flex flex-wrap gap-3">
+//           {[1, 2, 3, 4].map((num) => (
+//             <label
+//               key={num}
+//               htmlFor={`image${num}`}
+//               className="flex flex-col items-center justify-center w-24 h-24 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-blue-500 transition-colors sm:w-20 sm:h-20"
+//             >
+//               <img
+//                 className="w-10 opacity-60 sm:w-8"
+//                 src={assets.upload_area}
+//                 alt={`upload area ${num}`}
+//               />
+//               <span className="text-xs text-gray-500 mt-1 sm:text-[10px]">Image {num}</span>
+//               <input
+//                 type="file"
+//                 id={`image${num}`}
+//                 className="hidden"
+//                 accept="image/*"
+//               />
+//             </label>
+//           ))}
+//         </div>
+//       </div>
+
+//       {/* Product Details Section */}
+//       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+//         {/* Product Name */}
 //         <div>
-//           <label className="block text-sm font-medium text-gray-700">Name</label>
-//           <input
+//           <label className="block mb-1 font-medium text-gray-700 text-sm sm:text-xs">Product Name</label>
+//           <input required
 //             type="text"
-//             name="name"
-//             value={formData.name}
-//             onChange={handleInputChange}
-//             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-//             required
+//             placeholder="Enter product name (e.g., Herbal Anti-Dandruff Shampoo)"
+//             className="w-full px-3 py-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-xs"
 //           />
 //         </div>
 
-//         {/* Description */}
+//         {/* Product Category */}
 //         <div>
-//           <label className="block text-sm font-medium text-gray-700">Description</label>
-//           <textarea
-//             name="description"
-//             value={formData.description}
-//             onChange={handleInputChange}
-//             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-//             rows="4"
-//             required
-//           />
-//         </div>
-
-//         {/* Ingredients */}
-//         <div>
-//           <label className="block text-sm font-medium text-gray-700">Ingredients (comma-separated)</label>
-//           <input
-//             type="text"
-//             placeholder="e.g., Aloe Vera, Neem Extract"
-//             onChange={(e) => handleArrayInput(e, 'ingredients')}
-//             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-//             required
-//           />
-//         </div>
-
-//         {/* Benefits */}
-//         <div>
-//           <label className="block text-sm font-medium text-gray-700">Benefits (comma-separated)</label>
-//           <input
-//             type="text"
-//             placeholder="e.g., Fights dandruff, Soothes itchy scalp"
-//             onChange={(e) => handleArrayInput(e, 'benefits')}
-//             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-//             required
-//           />
-//         </div>
-
-//         {/* Stock Status */}
-//         <div>
-//           <label className="block text-sm font-medium text-gray-700">Stock Status</label>
-//           <select
-//             name="stockStatus"
-//             value={formData.stockStatus}
-//             onChange={handleInputChange}
-//             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-//           >
-//             <option value="In Stock">In Stock</option>
-//             <option value="Out of Stock">Out of Stock</option>
-//           </select>
-//         </div>
-
-//         {/* Price */}
-//         <div>
-//           <label className="block text-sm font-medium text-gray-700">Price (by size)</label>
-//           <div className="grid grid-cols-2 gap-4">
-//             {['S', 'M', 'L', 'XL'].map((size) => (
-//               <div key={size}>
-//                 <label className="block text-sm text-gray-600">{size}</label>
-//                 <input
-//                   type="number"
-//                   value={formData.price[size] || 0}
-//                   onChange={(e) => handlePriceChange(size, e.target.value)}
-//                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-//                   min="0"
-//                   required
-//                 />
-//               </div>
-//             ))}
-//           </div>
-//         </div>
-
-//         {/* Image Upload */}
-//         <div>
-//           <label className="block text-sm font-medium text-gray-700">Images (select up to 4)</label>
-//           <input
-//             type="file"
-//             multiple
-//             accept="image/*"
-//             onChange={handleFileChange}
-//             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none"
-//             required
-//           />
-//         </div>
-
-//         {/* Category */}
-//         <div>
-//           <label className="block text-sm font-medium text-gray-700">Category</label>
-//           <select
-//             name="category"
-//             value={formData.category}
-//             onChange={handleInputChange}
-//             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-//           >
+//           <label className="block mb-1 font-medium text-gray-700 text-sm sm:text-xs">Product Category</label>
+//           <select required className="w-full px-3 py-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-xs">
+//             <option value="">Select category</option>
 //             <option value="Shampoo">Shampoo</option>
 //             <option value="Soap">Soap</option>
 //             <option value="Oil">Oil</option>
@@ -247,122 +304,137 @@
 //           </select>
 //         </div>
 
-//         {/* SubCategory */}
+//         {/* Product Sub-Category */}
 //         <div>
-//           <label className="block text-sm font-medium text-gray-700">SubCategory</label>
-//           <select
-//             name="subCategory"
-//             value={formData.subCategory}
-//             onChange={handleInputChange}
-//             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-//           >
-//             <option value="Face Care">Face Care</option>
-//             <option value="Moisturizer">Moisturizer</option>
-//             <option value="Skincare">Skincare</option>
+//           <label className="block mb-1 font-medium text-gray-700 text-sm sm:text-xs">Product Sub-Category</label>
+//           <select required className="w-full px-3 py-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-xs">
+//             <option value="">Select sub-category</option>
 //             <option value="Haircare">Haircare</option>
+//             <option value="Skincare">Skincare</option>
+//             <option value="Moisturizer">Moisturizer</option>
+//             <option value="Face Care">Face Care</option>
+//           </select>
+//         </div>
+
+//         {/* Stock Status */}
+//         <div>
+//           <label className="block mb-1 font-medium text-gray-700 text-sm sm:text-xs">Stock Status</label>
+//           <select required className="w-full px-3 py-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-xs">
+//             <option value="">Select status</option>
+//             <option value="In Stock">In Stock</option>
+//             <option value="Out of Stock">Out of Stock</option>
+//             <option value="Low Stock">Low Stock</option>
+//           </select>
+//         </div>
+
+//         {/* Bestseller */}
+//         <div>
+//           <label className="block mb-1 font-medium text-gray-700 text-sm sm:text-xs">Bestseller</label>
+//           <select required className="w-full px-3 py-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-xs">
+//             <option value="">Select option</option>
+//             <option value="true">Yes</option>
+//             <option value="false">No</option>
 //           </select>
 //         </div>
 
 //         {/* Sizes */}
 //         <div>
-//           <label className="block text-sm font-medium text-gray-700">Sizes</label>
-//           <div className="flex gap-4">
-//             {['S', 'M', 'L', 'XL'].map((size) => (
-//               <label key={size} className="flex items-center gap-2">
-//                 <input
-//                   type="checkbox"
-//                   checked={formData.sizes.includes(size)}
-//                   onChange={() => handleSizeChange(size)}
-//                 />
-//                 {size}
-//               </label>
-//             ))}
-//           </div>
+//           <label className="block mb-1 font-medium text-gray-700 text-sm sm:text-xs">Sizes</label>
+//           <select required className="w-full px-3 py-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-xs">
+//             <option value="">Select size</option>
+//             <option value="S">S</option>
+//             <option value="M">M</option>
+//             <option value="L">L</option>
+//             <option value="XL">XL</option>
+//           </select>
 //         </div>
+//       </div>
 
-//         {/* Bestseller */}
+//       {/* Price Section */}
+//       <div className="mb-4 grid grid-cols-4 gap-4 sm:grid-cols-2">
 //         <div>
-//           <label className="flex items-center gap-2 text-sm font-medium text-gray-700">
-//             <input
-//               type="checkbox"
-//               checked={formData.bestseller}
-//               onChange={handleBestsellerChange}
-//             />
-//             Bestseller
-//           </label>
+//           <label className="block mb-1 font-medium text-gray-700 text-sm sm:text-xs">Price (S)</label>
+//           <input required
+//             type="number"
+//             placeholder="0.00"
+//             step="1.00"
+//             min="5"
+//             className="w-full px-3 py-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-xs"
+//           />
 //         </div>
-
-//         {/* Reviews */}
 //         <div>
-//           <label className="block text-sm font-medium text-gray-700">Add Review</label>
-//           <div className="space-y-2">
-//             <input
-//               type="text"
-//               name="name"
-//               value={newReview.name}
-//               onChange={handleReviewChange}
-//               placeholder="Reviewer Name"
-//               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-//             />
-//             <select
-//               name="rating"
-//               value={newReview.rating}
-//               onChange={handleReviewChange}
-//               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-//             >
-//               {[1, 2, 3, 4, 5].map((num) => (
-//                 <option key={num} value={num}>{num}</option>
-//               ))}
-//             </select>
-//             <textarea
-//               name="comment"
-//               value={newReview.comment}
-//               onChange={handleReviewChange}
-//               placeholder="Comment"
-//               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-//               rows="2"
-//             />
-//             <button
-//               type="button"
-//               onClick={addReview}
-//               className="py-1 px-3 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-//             >
-//               Add Review
-//             </button>
-//           </div>
-//           {formData.reviews.length > 0 && (
-//             <div className="mt-4">
-//               <h4 className="text-sm font-medium text-gray-700">Added Reviews:</h4>
-//               <ul className="list-disc pl-5">
-//                 {formData.reviews.map((review, index) => (
-//                   <li key={index}>
-//                     {review.name} - {review.rating} stars: {review.comment}
-//                   </li>
-//                 ))}
-//               </ul>
-//             </div>
-//           )}
+//           <label className="block mb-1 font-medium text-gray-700 text-sm sm:text-xs">Price (M)</label>
+//           <input
+//             type="number" required
+//             placeholder="0.00"
+//              step="1.00"
+//             min="5"
+//             className="w-full px-3 py-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-xs"
+//           />
 //         </div>
+//         <div>
+//           <label className="block mb-1 font-medium text-gray-700 text-sm sm:text-xs">Price (L)</label>
+//           <input
+//             type="number" required
+//             placeholder="0.00"
+//              step="1.00"
+//             min="5"
+//             className="w-full px-3 py-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-xs"
+//           />
+//         </div>
+//         <div>
+//           <label className="block mb-1 font-medium text-gray-700 text-sm sm:text-xs">Price (XL)</label>
+//           <input
+//             type="number" required
+//             placeholder="0.00"
+//              step="1.00"
+//             min="5"
+//             className="w-full px-3 py-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-xs"
+//           />
+//         </div>
+//       </div>
 
-//         {/* Submit Button */}
-//         <button
+//       {/* Ingredients */}
+//       <div className="mb-4">
+//         <label className="block mb-1 font-medium text-gray-700 text-sm sm:text-xs">Ingredients</label>
+//         <input required
+//           type="text"
+//           placeholder="Enter ingredients (e.g., Aloe Vera, Neem Extract, Tea Tree Oil)"
+//           className="w-full px-3 py-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-xs"
+//         />
+//       </div>
+
+//       {/* Benefits */}
+//       <div className="mb-4">
+//         <label className="block mb-1 font-medium text-gray-700 text-sm sm:text-xs">Benefits</label>
+//         <input required
+//           type="text"
+//           placeholder="Enter benefits (e.g., Fights dandruff, Soothes itchy scalp)"
+//           className="w-full px-3 py-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-xs"
+//         />
+//       </div>
+
+//       {/* Description */}
+//       <div className="mb-4">
+//         <label className="block mb-1 font-medium text-gray-700 text-sm sm:text-xs">Product Description</label>
+//         <textarea required
+//           rows={2}
+//           placeholder="Enter detailed product description (e.g., A refreshing shampoo...)"
+//           className="w-full px-3 py-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-xs"
+//         />
+//       </div>
+
+//       {/* Submit Button */}
+//       <div className="flex justify-end">
+//         <button 
 //           type="submit"
-//           className="w-full py-2 px-4 bg-blue-600 text-white font-medium rounded-md hover:bg-blue-700 transition duration-200"
+//           className="px-5 py-1 bg-blue-600 text-white font-medium cursor-pointer hover:bg-blue-700 transition-colors text-sm sm:text-xs"
 //         >
 //           Add Product
 //         </button>
-//       </form>
-//     </div>
+//       </div>
+//     </form>
 //   );
 // };
 
 // export default Add;
-import React from 'react'
-
-const Add = () => {
-  return (
-    <div></div>
-  )
-}
-
-export default Add

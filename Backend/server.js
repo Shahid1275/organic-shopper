@@ -4,7 +4,7 @@ import cors from 'cors';
 import connectDB from './config/db.js';
 import connectCloudinary from './config/cloudinary.js';
 import userRouter from './routes/userRoutes.js';
-import productRouter from './routes/ProductRoutes.js';
+import productRouter from './routes/productRoutes.js'
 import reviewRouter from './routes/reviewRoutes.js';
 const app = express();
 

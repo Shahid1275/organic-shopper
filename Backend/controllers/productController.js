@@ -30,61 +30,90 @@ const addProduct = async (req, res) => {
       })
     );
 
+    // Validate required fields
     if (!name || !price || !stockStatus || !description || !category || !subCategory || !sizes) {
-      return res.status(400).json({ error: "All fields are required" });
+      return res.status(400).json({ error: "All fields (name, price, stockStatus, description, category, subCategory, sizes) are required" });
     }
     if (!ingredients || !benefits) {
       return res.status(400).json({ error: "Ingredients and benefits are required" });
     }
-
-    let priceMap;
-    try {
-      const priceObj = JSON.parse(price); // Parse the price string
-      // Validate and transform price object
-      const validatedPrice = {};
-      for (const [key, value] of Object.entries(priceObj)) {
-        if (typeof value === "number") {
-          // Convert number to { value, display } object
-          validatedPrice[key] = {
-            value: value,
-            display: `$${value.toFixed(2)}`, // Format as currency string
-          };
-        } else if (typeof value === "object" && value.value && value.display) {
-          // Already in correct format
-          validatedPrice[key] = value;
-        } else {
-          throw new Error(`Invalid price format for size ${key}`);
-        }
-      }
-      priceMap = new Map(Object.entries(validatedPrice));
-    } catch (e) {
-      return res.status(400).json({
-        error: `Invalid price format: ${e.message}. Must be an object like { "S": {"value": 23, "display": "$23.00"}, "L": {"value": 50, "display": "$50.00"} } or { "S": 23, "L": 50 }`,
-      });
-    }
-
     if (images.length === 0) {
       return res.status(400).json({ error: "At least one image is required" });
     }
 
+    // Parse and validate price
+    let priceMap;
+    try {
+      const priceObj = typeof price === "string" ? JSON.parse(price) : price;
+      const validatedPrice = {};
+      for (const [key, value] of Object.entries(priceObj)) {
+        if (["S", "M", "L", "XL"].includes(key)) {
+          if (typeof value === "number") {
+            validatedPrice[key] = {
+              value: value,
+              display: value.toFixed(2),
+            };
+          } else if (typeof value === "object" && value.value && value.display) {
+            validatedPrice[key] = {
+              value: value.value,
+              display: value.display,
+            };
+          } else {
+            throw new Error(`Invalid price format for size ${key}`);
+          }
+        } else {
+          throw new Error(`Invalid size key: ${key}. Must be one of S, M, L, XL`);
+        }
+      }
+      priceMap = validatedPrice;
+    } catch (e) {
+      return res.status(400).json({
+        error: `Invalid price format: ${e.message}. Must be an object like { "S": {"value": 12, "display": "12.00"}, "M": {"value": 19, "display": "19.00"} } or { "S": 12, "M": 19 }`,
+      });
+    }
+
+    // Parse arrays if they are strings
+    const parsedIngredients = Array.isArray(ingredients) ? ingredients : JSON.parse(ingredients);
+    const parsedBenefits = Array.isArray(benefits) ? benefits : JSON.parse(benefits);
+    const parsedSizes = Array.isArray(sizes) ? sizes : JSON.parse(sizes);
+
+    // Validate sizes
+    if (!parsedSizes.every(size => ["S", "M", "L", "XL"].includes(size))) {
+      return res.status(400).json({ error: "Sizes must be an array of valid sizes (S, M, L, XL)" });
+    }
+
+    // Validate category and subCategory
+    const validCategories = ["Shampoo", "Soap", "Oil", "Cream"];
+    const validSubCategories = ["Haircare", "Skincare", "Moisturizer", "Face Care"];
+    if (!validCategories.includes(category)) {
+      return res.status(400).json({ error: `Category must be one of: ${validCategories.join(", ")}` });
+    }
+    if (!validSubCategories.includes(subCategory)) {
+      return res.status(400).json({ error: `SubCategory must be one of: ${validSubCategories.join(", ")}` });
+    }
+
+    // Validate stockStatus
+    const validStockStatuses = ["In Stock", "Out of Stock", "Low Stock"];
+    if (!validStockStatuses.includes(stockStatus)) {
+      return res.status(400).json({ error: `StockStatus must be one of: ${validStockStatuses.join(", ")}` });
+    }
+
     const date = Date.now();
-    const reviews = [];
 
     // Create new product
     const newProduct = new productModel({
       name,
       description,
-      ingredients: Array.isArray(ingredients) ? ingredients : JSON.parse(ingredients),
-      benefits: Array.isArray(benefits) ? benefits : JSON.parse(benefits),
+      ingredients: parsedIngredients,
+      benefits: parsedBenefits,
       stockStatus,
       price: priceMap,
       image: imagesUrl,
       category,
       subCategory,
-      sizes: Array.isArray(sizes) ? sizes : JSON.parse(sizes),
+      sizes: parsedSizes,
       date,
-      bestseller: bestseller === "true" ? true : bestseller === false,
-      reviews,
+      bestseller: bestseller === "true" ? true : bestseller === "false" ? false : Boolean(bestseller),
     });
 
     await newProduct.save();
@@ -95,51 +124,92 @@ const addProduct = async (req, res) => {
     res.status(500).json({ error: "Failed to add product", details: error.message });
   }
 };
-   
- 
-//list all products
-const listProducts = async (req,res) =>{
-    try {
-        const products = await productModel.find({});
-        res.status(200).json({products});
-    } catch (error) {
-        console.error("Error listing products:", error);
-        res.status(500).json({ error: "Failed to list products", details: error.message });
-    }
-}
-//remove products 
+
+// List all products
+const listProducts = async (req, res) => {
+  try {
+    const products = await productModel.find({});
+    // Transform price field to match the expected format
+    const transformedProducts = products.map(product => {
+      const productObj = product.toObject();
+      const priceObj = {};
+      for (const [size, priceData] of Object.entries(productObj.price)) {
+        priceObj[size] = {
+          value: priceData.value,
+          display: priceData.display,
+        };
+      }
+      productObj.price = priceObj;
+      return productObj;
+    });
+    res.status(200).json({ products: transformedProducts });
+  } catch (error) {
+    console.error("Error listing products:", error);
+    res.status(500).json({ error: "Failed to list products", details: error.message });
+  }
+};
+
+// Remove product
 const removeProduct = async (req, res) => {
   try {
     const { productId } = req.body;
     if (!productId) {
       return res.status(400).json({ error: "productId is required" });
     }
-    const product = await productModel.findByIdAndDelete(productId);
+    const product = await productModel.findById(productId);
     if (!product) {
       return res.status(404).json({ error: "Product not found" });
     }
-    console.log("Deleted product:", product);
+
+    // Delete associated images from Cloudinary
+    if (product.image && product.image.length > 0) {
+      await Promise.all(
+        product.image.map(async (imageUrl) => {
+          const publicId = imageUrl.split('/').pop().split('.')[0];
+          await cloudinary.uploader.destroy(publicId);
+        })
+      );
+    }
+
+    await productModel.findByIdAndDelete(productId);
     res.status(200).json({ success: true, message: "Product removed successfully" });
   } catch (error) {
     console.error("Error removing product:", error);
     res.status(500).json({ error: "Failed to remove product", details: error.message });
   }
 };
-// single product controller 
-const singleProduct = async (req,res) =>{
-   try {
-     const {productId} = req.body;
+
+// Single product controller
+const singleProduct = async (req, res) => {
+  try {
+    const { productId } = req.body;
+    if (!productId) {
+      return res.status(400).json({ error: "productId is required" });
+    }
     const product = await productModel.findById(productId);
-    res.status(200).json({success:true, message:"Product fetched successfully", product});
-   } catch (error) {
+    if (!product) {
+      return res.status(404).json({ error: "Product not found" });
+    }
+    // Transform price field to match the expected format
+    const productObj = product.toObject();
+    const priceObj = {};
+    for (const [size, priceData] of Object.entries(productObj.price)) {
+      priceObj[size] = {
+        value: priceData.value,
+        display: priceData.display,
+      };
+    }
+    productObj.price = priceObj;
+    res.status(200).json({ success: true, message: "Product fetched successfully", product: productObj });
+  } catch (error) {
     console.error("Error fetching product:", error);
     res.status(500).json({ error: "Failed to fetch product", details: error.message });
-   }
-}
+  }
+};
 
 export {
-    addProduct,
-    listProducts,
-    removeProduct,
-    singleProduct
-}
+  addProduct,
+  listProducts,
+  removeProduct,
+  singleProduct
+};
