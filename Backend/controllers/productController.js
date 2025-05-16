@@ -151,7 +151,7 @@ const addProduct = async (req, res) => {
 // List all products
 const listProducts = async (req, res) => {
   try {
-    const { page = 1, limit = 10, category, subCategory } = req.query; // Add query parameters
+    const { page = 1, limit = 10, category, subCategory } = req.query;
     const skip = (page - 1) * limit;
 
     // Build query object
@@ -164,24 +164,55 @@ const listProducts = async (req, res) => {
       .skip(skip)
       .limit(Number(limit));
 
-    // Transform products with safe price handling
+    // Log raw products data for debugging
+    console.log('Raw products from MongoDB at', new Date().toISOString(), ':', products.map(p => ({
+      _id: p._id,
+      name: p.name,
+      price: p.price
+    })));
+
+    // Transform products
     const transformedProducts = products.map(product => {
       const productObj = product.toObject();
-      const priceObj = {};
-      // Safely handle undefined or null price
-      if (productObj.price && typeof productObj.price === "object" && !Array.isArray(productObj.price)) {
-        for (const [size, priceData] of Object.entries(productObj.price)) {
-          priceObj[size] = {
-            value: priceData.value,
-            display: priceData.display,
-          };
-        }
-      } else {
-        console.warn(`Invalid price field for product ${productObj._id}:`, productObj.price);
-        // Set a default price object or skip transformation if desired
-        priceObj.S = { value: 0, display: "$0.00" }; // Default fallback
+
+      // Log original price
+      console.log(`Original price for product ${productObj._id} at`, new Date().toISOString(), ':', productObj.price);
+
+      // Convert price from Map to plain object if necessary
+      let priceObj = productObj.price;
+      if (priceObj instanceof Map) {
+        priceObj = Object.fromEntries(priceObj);
       }
-      productObj.price = priceObj;
+
+      // Ensure price is a valid object and add sizes
+      if (!priceObj || typeof priceObj !== 'object' || Array.isArray(priceObj)) {
+        console.warn(`Invalid or empty price field for product ${productObj._id} at`, new Date().toISOString(), ':', priceObj);
+        productObj.price = { S: { value: 0, display: "$0.00" } };
+        productObj.sizes = ['S'];
+      } else {
+        productObj.price = priceObj;
+        productObj.sizes = Object.keys(productObj.price);
+        // Ensure each size has a display field
+        productObj.sizes.forEach(size => {
+          if (!productObj.price[size].display) {
+            console.warn(`Missing display field for size ${size} in product ${productObj._id}:`, productObj.price[size]);
+            const value = productObj.price[size].value || 0;
+            productObj.price[size].display = `$ ${value.toFixed(2)}`;
+          }
+        });
+        // If no valid sizes, set a default
+        if (productObj.sizes.length === 0 || !productObj.sizes.some(size => productObj.price[size].display)) {
+          productObj.price = { S: { value: 0, display: "$0.00" } };
+          productObj.sizes = ['S'];
+        }
+      }
+
+      // Log final product data
+      console.log(`Final product data for ${productObj._id} at`, new Date().toISOString(), ':', {
+        price: productObj.price,
+        sizes: productObj.sizes
+      });
+
       return productObj;
     });
 
@@ -199,7 +230,7 @@ const listProducts = async (req, res) => {
       },
     });
   } catch (error) {
-    console.error("Error listing products:", error.stack); // Include stack trace
+    console.error("Error listing products at", new Date().toISOString(), ":", error.stack);
     res.status(500).json({
       success: false,
       error: "Failed to list products",
