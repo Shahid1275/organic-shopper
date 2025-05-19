@@ -66,4 +66,4 @@ const RelatedProducts = ({ category, subCategory }) => {
   );
 };
 
-export default RelatedProducts;
+export default RelatedProducts; 

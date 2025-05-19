@@ -8,7 +8,7 @@ const LatestCollections = () => {
   const [latestCollections, setLatestCollections] = useState([]);
 
   useEffect(() => {
-    const latest = products.slice(0, 10).map(product => ({
+    const latest = products.slice(0, 5).map(product => ({
       ...product,
       sizes: product.sizes || Object.keys(product.price || {}),
     }));

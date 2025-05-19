@@ -293,7 +293,7 @@ const Add = ({ token }) => {
               name={`price${size}`}
               type="number"
               placeholder="0.00"
-              step="5"
+              step="1"
               min="0"
               value={price[size]}
               onChange={(e) => handlePriceChange(size, e.target.value)}

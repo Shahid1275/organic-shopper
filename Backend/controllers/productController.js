@@ -151,18 +151,8 @@ const addProduct = async (req, res) => {
 // List all products
 const listProducts = async (req, res) => {
   try {
-    const { page = 1, limit = 10, category, subCategory } = req.query;
-    const skip = (page - 1) * limit;
-
-    // Build query object
-    const query = {};
-    if (category) query.category = category;
-    if (subCategory) query.subCategory = subCategory;
-
-    // Fetch products with pagination and filtering
-    const products = await productModel.find(query)
-      .skip(skip)
-      .limit(Number(limit));
+    // Fetch all products without pagination
+    const products = await productModel.find().lean();
 
     // Log raw products data for debugging
     console.log('Raw products from MongoDB at', new Date().toISOString(), ':', products.map(p => ({
@@ -173,39 +163,38 @@ const listProducts = async (req, res) => {
 
     // Transform products
     const transformedProducts = products.map(product => {
-      const productObj = product.toObject();
+      const productObj = { ...product };
 
       // Log original price
       console.log(`Original price for product ${productObj._id} at`, new Date().toISOString(), ':', productObj.price);
 
-      // Convert price from Map to plain object if necessary
+      // Ensure price is a valid object
       let priceObj = productObj.price;
-      if (priceObj instanceof Map) {
-        priceObj = Object.fromEntries(priceObj);
-      }
-
-      // Ensure price is a valid object and add sizes
       if (!priceObj || typeof priceObj !== 'object' || Array.isArray(priceObj)) {
         console.warn(`Invalid or empty price field for product ${productObj._id} at`, new Date().toISOString(), ':', priceObj);
-        productObj.price = { S: { value: 0, display: "$0.00" } };
-        productObj.sizes = ['S'];
-      } else {
-        productObj.price = priceObj;
-        productObj.sizes = Object.keys(productObj.price);
-        // Ensure each size has a display field
-        productObj.sizes.forEach(size => {
-          if (!productObj.price[size].display) {
-            console.warn(`Missing display field for size ${size} in product ${productObj._id}:`, productObj.price[size]);
-            const value = productObj.price[size].value || 0;
-            productObj.price[size].display = `$ ${value.toFixed(2)}`;
-          }
-        });
-        // If no valid sizes, set a default
-        if (productObj.sizes.length === 0 || !productObj.sizes.some(size => productObj.price[size].display)) {
-          productObj.price = { S: { value: 0, display: "$0.00" } };
-          productObj.sizes = ['S'];
-        }
+        priceObj = { S: { value: 0, display: "$0.00" } };
       }
+
+      // Set sizes from price object keys
+      productObj.sizes = Object.keys(priceObj).filter(size => priceObj[size] && priceObj[size].value !== undefined);
+      
+      // Ensure each size has a display field
+      productObj.sizes.forEach(size => {
+        if (!priceObj[size].display) {
+          console.warn(`Missing display field for size ${size} in product ${productObj._id}:`, priceObj[size]);
+          const value = priceObj[size].value || 0;
+          priceObj[size].display = `$${value.toFixed(2)}`;
+        }
+      });
+
+      // If no valid sizes, set a default
+      if (productObj.sizes.length === 0) {
+        console.warn(`No valid sizes for product ${productObj._id}, setting default`);
+        priceObj = { S: { value: 0, display: "$0.00" } };
+        productObj.sizes = ['S'];
+      }
+
+      productObj.price = priceObj;
 
       // Log final product data
       console.log(`Final product data for ${productObj._id} at`, new Date().toISOString(), ':', {
@@ -216,18 +205,9 @@ const listProducts = async (req, res) => {
       return productObj;
     });
 
-    // Add pagination metadata
-    const totalProducts = await productModel.countDocuments(query);
-    const totalPages = Math.ceil(totalProducts / limit);
-
     res.status(200).json({
-      products: transformedProducts,
-      pagination: {
-        currentPage: Number(page),
-        totalPages,
-        totalItems: totalProducts,
-        itemsPerPage: Number(limit),
-      },
+      success: true,
+      products: transformedProducts
     });
   } catch (error) {
     console.error("Error listing products at", new Date().toISOString(), ":", error.stack);
@@ -322,9 +302,20 @@ const singleProduct = async (req, res) => {
   }
 };
 
+ const getProductList = async (req, res) => {
+  try {
+    // Remove pagination for public endpoint
+    const products = await productModel.find().lean();
+    return res.status(200).json({ success: true, products });
+  } catch (error) {
+    console.error('Error fetching products:', error);
+    return res.status(500).json({ success: false, message: 'Server error' });
+  }
+};
 export {
   addProduct,
   listProducts,
   removeProduct,
-  singleProduct
+  singleProduct,
+  getProductList
 };
