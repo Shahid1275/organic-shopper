@@ -77,8 +77,11 @@ JWT_SECRET=your_secure_jwt_secret
 PORT=3000
 
 # Cloudinary credentials (for image uploads)
+
 CLOUDINARY_CLOUD_NAME=your_cloud_name
+
 CLOUDINARY_API_KEY=your_api_key
+
 CLOUDINARY_API_SECRET=your_api_secret
 
 # Stripe secret key (for payments)
