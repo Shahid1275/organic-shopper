@@ -156,22 +156,6 @@ const countryData = [
     conversionRate: 30.7,
     currencySymbol: "₺",
   },
-  {
-    country: "Switzerland",
-    currency: "CHF",
-    currencyName: "Swiss Franc",
-    language: "German/French/Italian",
-    conversionRate: 0.8,
-    currencySymbol: "CHF",
-  },
-  {
-    country: "United Arab Emirates",
-    currency: "AED",
-    currencyName: "UAE Dirham",
-    language: "Arabic",
-    conversionRate: 2.07,
-    currencySymbol: "د.إ",
-  },
 ];
 
 export const fetchProducts = createAsyncThunk(
@@ -248,6 +232,7 @@ const initialState = {
   cartItems: {},
   backendUrl: import.meta.env.VITE_BACKEND_URL || "http://localhost:5000",
   loading: false,
+  token: localStorage.getItem("token") || "",
   bestSellersLoading: false,
   latestProductsLoading: false,
   error: null,
@@ -320,6 +305,13 @@ export const shopSlice = createSlice({
     setLanguage: (state, action) => {
       state.language = action.payload;
       localStorage.setItem("language", action.payload);
+    },
+    setToken: (state, action) => {
+      state.token = action.payload;
+      localStorage.setItem("token", action.payload); // Persist token to localStorage
+    },
+    clearCart: (state) => {
+      state.cartItems = {};
     },
   },
   extraReducers: (builder) => {
@@ -429,8 +421,10 @@ export const {
   updateQuantity,
   removeFromCart,
   setCountry,
+  setToken,
   setCurrency,
   setLanguage,
+  clearCart,
 } = shopSlice.actions;
 
 export default shopSlice.reducer;
