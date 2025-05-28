@@ -1,162 +1,181 @@
-
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import axios from 'axios';
-import { toast } from 'react-toastify';
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import axios from "axios";
+import { toast } from "react-toastify";
 
 // Hardcoded country data
-const countryData = 
- [
-  { 
-    country: "Pakistan", 
-    currency: "PKR", 
-    currencyName: "pkr", 
-    language: "English", 
-    conversionRate: 200.00
+const countryData = [
+  {
+    country: "Pakistan",
+    currency: "PKR",
+    currencyName: "pkr",
+    language: "English",
+    conversionRate: 200.0,
+    currencySymbol: "₨",
   },
-  { 
-    country: "United States", 
-    currency: "USD", 
-    currencyName: "US Dollar", 
-    language: "English", 
-    conversionRate: 1 
+  {
+    country: "United States",
+    currency: "$",
+    currencyName: "US Dollar",
+    language: "English",
+    conversionRate: 1,
+    currencySymbol: "$",
   },
-  { 
-    country: "China", 
-    currency: "CNY", 
-    currencyName: "Chinese Yuan", 
-    language: "Mandarin", 
-    conversionRate: 2.23 
+  {
+    country: "China",
+    currency: "CNY",
+    currencyName: "Chinese Yuan",
+    language: "Mandarin",
+    conversionRate: 2.23,
+    currencySymbol: "¥",
   },
-  { 
-    country: "Japan", 
-    currency: "JPY", 
-    currencyName: "Japanese Yen", 
-    language: "Japanese", 
-    conversionRate: 120.34 
+  {
+    country: "Japan",
+    currency: "JPY",
+    currencyName: "Japanese Yen",
+    language: "Japanese",
+    conversionRate: 120.34,
+    currencySymbol: "¥",
   },
-  { 
-    country: "Germany", 
-    currency: "EUR", 
-    currencyName: "Euro", 
-    language: "German", 
-    conversionRate: 0.63 
+  {
+    country: "Germany",
+    currency: "EUR",
+    currencyName: "Euro",
+    language: "German",
+    conversionRate: 0.63,
+    currencySymbol: "€",
   },
-  { 
-    country: "United Kingdom", 
-    currency: "GBP", 
-    currencyName: "British Pound", 
-    language: "English", 
-    conversionRate: 0.59 
+  {
+    country: "United Kingdom",
+    currency: "GBP",
+    currencyName: "British Pound",
+    language: "English",
+    conversionRate: 0.59,
+    currencySymbol: "£",
   },
-  { 
-    country: "India", 
-    currency: "INR", 
-    currencyName: "Indian Rupee", 
-    language: "Hindi", 
-    conversionRate: 53.45 
+  {
+    country: "India",
+    currency: "INR",
+    currencyName: "Indian Rupee",
+    language: "Hindi",
+    conversionRate: 53.45,
+    currencySymbol: "₹",
   },
-  { 
-    country: "France", 
-    currency: "EUR", 
-    currencyName: "Euro", 
-    language: "French", 
-    conversionRate: 0.73 
+  {
+    country: "France",
+    currency: "EUR",
+    currencyName: "Euro",
+    language: "French",
+    conversionRate: 0.73,
+    currencySymbol: "€",
   },
-  { 
-    country: "Brazil", 
-    currency: "BRL", 
-    currencyName: "Brazilian Real", 
-    language: "Portuguese", 
-    conversionRate: 3.45 
+  {
+    country: "Brazil",
+    currency: "BRL",
+    currencyName: "Brazilian Real",
+    language: "Portuguese",
+    conversionRate: 3.45,
+    currencySymbol: "R$",
   },
-  { 
-    country: "Italy", 
-    currency: "EUR", 
-    currencyName: "Euro", 
-    language: "Italian", 
-    conversionRate: 0.63 
+  {
+    country: "Italy",
+    currency: "EUR",
+    currencyName: "Euro",
+    language: "Italian",
+    conversionRate: 0.63,
+    currencySymbol: "€",
   },
-  { 
-    country: "Canada", 
-    currency: "CAD", 
-    currencyName: "Canadian Dollar", 
-    language: "English/French", 
-    conversionRate: 1.00 
+  {
+    country: "Canada",
+    currency: "CAD",
+    currencyName: "Canadian Dollar",
+    language: "English/French",
+    conversionRate: 1.0,
+    currencySymbol: "$",
   },
-  { 
-    country: "South Korea", 
-    currency: "KRW", 
-    currencyName: "South Korean Won", 
-    language: "Korean", 
-    conversionRate: 120.50 
+  {
+    country: "South Korea",
+    currency: "KRW",
+    currencyName: "South Korean Won",
+    language: "Korean",
+    conversionRate: 120.5,
+    currencySymbol: "₩",
   },
-  { 
-    country: "Russia", 
-    currency: "RUB", 
-    currencyName: "Russian Ruble", 
-    language: "Russian", 
-    conversionRate: 60.50 
+  {
+    country: "Russia",
+    currency: "RUB",
+    currencyName: "Russian Ruble",
+    language: "Russian",
+    conversionRate: 60.5,
+    currencySymbol: "₽",
   },
-  { 
-    country: "Australia", 
-    currency: "AUD", 
-    currencyName: "Australian Dollar", 
-    language: "English", 
-    conversionRate: 1.00 
+  {
+    country: "Australia",
+    currency: "AUD",
+    currencyName: "Australian Dollar",
+    language: "English",
+    conversionRate: 1.0,
+    currencySymbol: "$",
   },
-  { 
-    country: "Mexico", 
-    currency: "MXN", 
-    currencyName: "Mexican Peso", 
-    language: "Spanish", 
-    conversionRate: 10.20 
+  {
+    country: "Mexico",
+    currency: "MXN",
+    currencyName: "Mexican Peso",
+    language: "Spanish",
+    conversionRate: 10.2,
+    currencySymbol: "$",
   },
-  { 
-    country: "Indonesia", 
-    currency: "IDR", 
-    currencyName: "Indonesian Rupiah", 
-    language: "Indonesian", 
-    conversionRate: 162.00 
+  {
+    country: "Indonesia",
+    currency: "IDR",
+    currencyName: "Indonesian Rupiah",
+    language: "Indonesian",
+    conversionRate: 162.0,
+    currencySymbol: "Rp",
   },
-  { 
-    country: "Netherlands", 
-    currency: "EUR", 
-    currencyName: "Euro", 
-    language: "Dutch", 
-    conversionRate: 0.73 
+  {
+    country: "Netherlands",
+    currency: "EUR",
+    currencyName: "Euro",
+    language: "Dutch",
+    conversionRate: 0.73,
+    currencySymbol: "€",
   },
-  { 
-    country: "Saudi Arabia", 
-    currency: "SAR", 
-    currencyName: "Saudi Riyal", 
-    language: "Arabic", 
-    conversionRate: 2.75 
+  {
+    country: "Saudi Arabia",
+    currency: "SAR",
+    currencyName: "Saudi Riyal",
+    language: "Arabic",
+    conversionRate: 2.75,
+    currencySymbol: "ر.س",
   },
-  { 
-    country: "Turkey", 
-    currency: "TRY", 
-    currencyName: "Turkish Lira", 
-    language: "Turkish", 
-    conversionRate: 30.70 
+  {
+    country: "Turkey",
+    currency: "TRY",
+    currencyName: "Turkish Lira",
+    language: "Turkish",
+    conversionRate: 30.7,
+    currencySymbol: "₺",
   },
-  { 
-    country: "Switzerland", 
-    currency: "CHF", 
-    currencyName: "Swiss Franc", 
-    language: "German/French/Italian", 
-    conversionRate: 0.80 
+  {
+    country: "Switzerland",
+    currency: "CHF",
+    currencyName: "Swiss Franc",
+    language: "German/French/Italian",
+    conversionRate: 0.8,
+    currencySymbol: "CHF",
   },
-  { 
-    country: "United Arab Emirates", 
-    currency: "AED", 
-    currencyName: "UAE Dirham", 
-    language: "Arabic", 
-    conversionRate: 2.07 
-  }
- ];
+  {
+    country: "United Arab Emirates",
+    currency: "AED",
+    currencyName: "UAE Dirham",
+    language: "Arabic",
+    conversionRate: 2.07,
+    currencySymbol: "د.إ",
+  },
+];
 
 export const fetchProducts = createAsyncThunk(
-  'shop/fetchProducts',
+  "shop/fetchProducts",
   async (_, { getState, rejectWithValue }) => {
     try {
       const { backendUrl } = getState().shop;
@@ -164,31 +183,37 @@ export const fetchProducts = createAsyncThunk(
       return response.data; // { success: true, products: [...] }
     } catch (error) {
       const errorMessage = error.response?.data?.error || error.message;
-      toast.error(`Error fetching products at ${new Date().toISOString()}: ${errorMessage}`);
+      toast.error(
+        `Error fetching products at ${new Date().toISOString()}: ${errorMessage}`
+      );
       return rejectWithValue(errorMessage);
     }
   }
 );
 
 export const fetchBestSellers = createAsyncThunk(
-  'shop/fetchBestSellers',
+  "shop/fetchBestSellers",
   async (_, { getState, rejectWithValue }) => {
     try {
       const { backendUrl } = getState().shop;
       const response = await axios.get(`${backendUrl}/api/product/list`); // Changed to /list (public)
       const products = response.data.products || [];
-      const bestSellers = products.filter(product => product.bestseller === true);
+      const bestSellers = products.filter(
+        (product) => product.bestseller === true
+      );
       return bestSellers;
     } catch (error) {
       const errorMessage = error.response?.data?.error || error.message;
-      toast.error(`Error fetching best sellers at ${new Date().toISOString()}: ${errorMessage}`);
+      toast.error(
+        `Error fetching best sellers at ${new Date().toISOString()}: ${errorMessage}`
+      );
       return rejectWithValue(errorMessage);
     }
   }
 );
 
 export const fetchLatestProducts = createAsyncThunk(
-  'shop/fetchLatestProducts',
+  "shop/fetchLatestProducts",
   async (_, { getState, rejectWithValue }) => {
     try {
       const { backendUrl } = getState().shop;
@@ -201,7 +226,9 @@ export const fetchLatestProducts = createAsyncThunk(
       return latestProducts;
     } catch (error) {
       const errorMessage = error.response?.data?.error || error.message;
-      toast.error(`Error fetching latest products at ${new Date().toISOString()}: ${errorMessage}`);
+      toast.error(
+        `Error fetching latest products at ${new Date().toISOString()}: ${errorMessage}`
+      );
       return rejectWithValue(errorMessage);
     }
   }
@@ -212,25 +239,28 @@ const initialState = {
   bestSellers: [],
   latestProducts: [],
   countries: countryData,
-  currency: localStorage.getItem('currency') || 'USD',
-  language: localStorage.getItem('language') || 'English',
-  country: localStorage.getItem('country') || 'United States',
+  currency: localStorage.getItem("currency") || "$",
+  language: localStorage.getItem("language") || "English",
+  country: localStorage.getItem("country") || "United States",
   delivery_Fee: 10,
-  search: '',
+  search: "",
   showSearch: false,
   cartItems: {},
-  backendUrl: import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000',
+  backendUrl: import.meta.env.VITE_BACKEND_URL || "http://localhost:5000",
   loading: false,
   bestSellersLoading: false,
   latestProductsLoading: false,
   error: null,
   bestSellersError: null,
   latestProductsError: null,
-  conversionRates: countryData.reduce((acc, curr) => ({ ...acc, [curr.currency]: curr.conversionRate }), { USD: 1 }),
+  conversionRates: countryData.reduce(
+    (acc, curr) => ({ ...acc, [curr.currency]: curr.conversionRate }),
+    { USD: 1 }
+  ),
 };
 
 export const shopSlice = createSlice({
-  name: 'shop',
+  name: "shop",
   initialState,
   reducers: {
     setSearch: (state, action) => {
@@ -273,21 +303,23 @@ export const shopSlice = createSlice({
       }
     },
     setCountry: (state, action) => {
-      const selected = state.countries.find(c => c.country === action.payload) || state.countries[0];
+      const selected =
+        state.countries.find((c) => c.country === action.payload) ||
+        state.countries[0];
       state.country = selected.country;
       state.currency = selected.currency;
       state.language = selected.language;
-      localStorage.setItem('country', state.country);
-      localStorage.setItem('currency', state.currency);
-      localStorage.setItem('language', state.language);
+      localStorage.setItem("country", state.country);
+      localStorage.setItem("currency", state.currency);
+      localStorage.setItem("language", state.language);
     },
     setCurrency: (state, action) => {
       state.currency = action.payload;
-      localStorage.setItem('currency', action.payload);
+      localStorage.setItem("currency", action.payload);
     },
     setLanguage: (state, action) => {
       state.language = action.payload;
-      localStorage.setItem('language', action.payload);
+      localStorage.setItem("language", action.payload);
     },
   },
   extraReducers: (builder) => {
@@ -299,7 +331,9 @@ export const shopSlice = createSlice({
       })
       .addCase(fetchProducts.fulfilled, (state, action) => {
         state.loading = false;
-        state.products = Array.isArray(action.payload.products) ? action.payload.products : [];
+        state.products = Array.isArray(action.payload.products)
+          ? action.payload.products
+          : [];
       })
       .addCase(fetchProducts.rejected, (state, action) => {
         state.loading = false;
@@ -327,7 +361,9 @@ export const shopSlice = createSlice({
       })
       .addCase(fetchLatestProducts.fulfilled, (state, action) => {
         state.latestProductsLoading = false;
-        state.latestProducts = Array.isArray(action.payload) ? action.payload : [];
+        state.latestProducts = Array.isArray(action.payload)
+          ? action.payload
+          : [];
       })
       .addCase(fetchLatestProducts.rejected, (state, action) => {
         state.latestProductsLoading = false;
@@ -339,9 +375,14 @@ export const shopSlice = createSlice({
 
 export const getCartAmount = (state) => {
   let cartTotal = 0;
-  const { cartItems, products = [], delivery_Fee, currency, conversionRates } = state.shop;
+  const {
+    cartItems,
+    products = [],
+    delivery_Fee,
+    currency,
+    conversionRates,
+  } = state.shop;
   const isCartEmpty = Object.keys(cartItems).length === 0;
-  const baseCurrency = 'USD';
 
   // Convert delivery fee to selected currency
   const convertedDeliveryFee = delivery_Fee * (conversionRates[currency] || 1);
@@ -352,12 +393,15 @@ export const getCartAmount = (state) => {
       for (const size in cartItems[itemId]) {
         const quantity = cartItems[itemId][size];
         const priceObj = product.price[size];
-        if (priceObj && typeof priceObj === 'object' && quantity > 0) {
+        if (priceObj && typeof priceObj === "object" && quantity > 0) {
           const priceValue = Number(priceObj.value || priceObj.display || 0);
           const convertedPrice = priceValue * (conversionRates[currency] || 1);
           cartTotal += convertedPrice * quantity;
         } else {
-          console.warn(`Invalid price format for product ID ${itemId}, size ${size}:`, priceObj);
+          console.warn(
+            `Invalid price format for product ID ${itemId}, size ${size}:`,
+            priceObj
+          );
         }
       }
     } else {
@@ -369,7 +413,10 @@ export const getCartAmount = (state) => {
 
   return {
     cartTotal: isNaN(cartTotal) ? 0 : parseFloat(cartTotal.toFixed(2)),
-    delivery_Fee: isNaN(convertedDeliveryFee) ? 0 : parseFloat(convertedDeliveryFee.toFixed(2)),
+    delivery_Fee:
+      isCartEmpty || isNaN(convertedDeliveryFee)
+        ? 0
+        : parseFloat(convertedDeliveryFee.toFixed(2)),
     grandTotal: isNaN(grandTotal) ? 0 : parseFloat(grandTotal.toFixed(2)),
     conversionRate: conversionRates[currency] || 1,
   };
