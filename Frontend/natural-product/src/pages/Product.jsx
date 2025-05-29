@@ -48,18 +48,20 @@
 //     );
 //   };
 
-//   const formatPriceWithCurrency = (price, sizes) => {
+//   const formatPriceWithCurrency = (price, sizes, currency) => {
 //     if (!price || typeof price !== "object") {
 //       return { S: { display: `${currency}0.00`, value: 0 } };
 //     }
 
 //     const formattedPrice = {};
+//     const conversionRate = currency === "PKR" ? 278 : 1; // Hypothetical rate: 1 USD = 278 PKR
 //     sizes.forEach((size) => {
 //       if (price[size]) {
-//         const value = Number(price[size].value || price[size].display || 0);
+//         const baseValue = Number(price[size].value || price[size].display || 0);
+//         const convertedValue = baseValue * conversionRate;
 //         formattedPrice[size] = {
-//           display: `${currency}${value.toFixed(2)}`,
-//           value,
+//           display: `${currency}${convertedValue.toFixed(2)}`,
+//           value: baseValue,
 //         };
 //       }
 //     });
@@ -69,11 +71,15 @@
 
 //   const getCurrentPrice = () => {
 //     const size = selectedSize || productData.sizes?.[0] || "S";
-//     if (!productData.price || !productData.price[size]) {
+//     const formattedPrice = formatPriceWithCurrency(
+//       productData.price,
+//       productData.sizes,
+//       currency
+//     );
+//     if (!formattedPrice[size]) {
 //       return `${currency}0.00`;
 //     }
-//     const value = getPriceForSize(size);
-//     return `${currency}${value.toFixed(2)}`;
+//     return formattedPrice[size].display;
 //   };
 
 //   if (!productData) {
@@ -83,12 +89,6 @@
 //       </div>
 //     );
 //   }
-
-//   const formattedPrice = formatPriceWithCurrency(
-//     productData.price,
-//     productData.sizes
-//   );
-//   const currentPrice = getCurrentPrice();
 
 //   return (
 //     <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
@@ -146,7 +146,9 @@
 //           <p className="text-gray-600">{productData.description}</p>
 //           <div className="flex items-center gap-4">
 //             <p className="text-sm font-medium text-gray-600">Price:</p>
-//             <p className="text-2xl font-bold text-gray-900">{currentPrice}</p>
+//             <p className="text-2xl font-bold text-gray-900">
+//               {getCurrentPrice()}
+//             </p>
 //           </div>
 //           <div className="flex flex-col gap-2">
 //             <p className="text-sm text-gray-600">
@@ -275,10 +277,12 @@ import RelatedProducts from "../components/RelatedProducts";
 import DescriptionAndReviews from "./DescriptionAndReviews";
 import { addToCart } from "../redux/shopSlice";
 import { toast } from "react-toastify";
+import { jwtDecode } from "jwt-decode";
 
 const Product = () => {
   const { productId } = useParams();
-  const { products, user, currency } = useSelector((state) => state.shop);
+  const { products, user, currency, setToken, token, addToCartLoading } =
+    useSelector((state) => state.shop);
   const dispatch = useDispatch();
   const [productData, setProductData] = useState(null);
   const [mainImage, setMainImage] = useState("");
@@ -295,26 +299,51 @@ const Product = () => {
   }, [productId, products]);
 
   const handleAddToCart = () => {
-    if (productData.stockStatus === "In Stock" && selectedSize) {
-      dispatch(
-        addToCart({
-          itemId: productData._id,
-          size: selectedSize,
-          price: getPriceForSize(selectedSize),
-        })
-      );
-      toast.success("Item added to cart!");
-    } else {
-      toast.error("Please select a size or check stock availability.");
+    if (!token) {
+      toast.error("Please log in to add items to your cart");
+      return;
     }
-  };
 
-  const getPriceForSize = (size) => {
-    if (!productData.price || !productData.price[size]) return 0;
-    return (
-      productData.price[size].value ||
-      Number(productData.price[size].display) ||
-      0
+    if (!productData) {
+      toast.error("Product not found. Please try again.");
+      return;
+    }
+
+    if (productData.stockStatus !== "In Stock") {
+      toast.error("This product is out of stock.");
+      return;
+    }
+
+    if (!selectedSize) {
+      toast.error("Please select a size.");
+      return;
+    }
+
+    let userId;
+    try {
+      const decoded = jwtDecode(token);
+      userId = decoded.userId || decoded.id;
+      if (!userId) {
+        throw new Error("User ID not found in token");
+      }
+    } catch (error) {
+      console.error("Error decoding token:", error);
+      toast.error("Invalid authentication token. Please log in again.", {
+        onClose: () => {
+          localStorage.removeItem("token");
+          dispatch(setToken(""));
+          window.location.href = "/login";
+        },
+      });
+      return;
+    }
+
+    dispatch(
+      addToCart({
+        itemId: productData._id,
+        size: selectedSize,
+        userId,
+      })
     );
   };
 
@@ -324,7 +353,7 @@ const Product = () => {
     }
 
     const formattedPrice = {};
-    const conversionRate = currency === "PKR" ? 278 : 1; // Hypothetical rate: 1 USD = 278 PKR
+    const conversionRate = currency === "PKR" ? 278 : 1;
     sizes.forEach((size) => {
       if (price[size]) {
         const baseValue = Number(price[size].value || price[size].display || 0);
@@ -346,10 +375,7 @@ const Product = () => {
       productData.sizes,
       currency
     );
-    if (!formattedPrice[size]) {
-      return `${currency}0.00`;
-    }
-    return formattedPrice[size].display;
+    return formattedPrice[size]?.display || `${currency}0.00`;
   };
 
   if (!productData) {
@@ -460,10 +486,16 @@ const Product = () => {
           )}
           <button
             className="mt-4 w-full rounded-lg bg-gray-900 py-3 text-white transition hover:bg-gray-800 disabled:bg-gray-400 sm:w-1/2"
-            disabled={productData.stockStatus !== "In Stock" || !selectedSize}
+            disabled={
+              productData.stockStatus !== "In Stock" ||
+              !selectedSize ||
+              addToCartLoading
+            }
             onClick={handleAddToCart}
           >
-            {productData.stockStatus === "In Stock"
+            {addToCartLoading
+              ? "Adding..."
+              : productData.stockStatus === "In Stock"
               ? "Add to Cart"
               : "Out of Stock"}
           </button>

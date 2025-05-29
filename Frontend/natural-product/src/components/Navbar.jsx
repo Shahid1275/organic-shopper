@@ -1,15 +1,14 @@
 import React, { useState, useEffect } from "react";
 import { assets } from "../assets/assets";
-import { NavLink } from "react-router-dom";
-import { useNavigate } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import {
+  clearCart,
   setShowSearch,
   setCountry,
   setCurrency,
   setLanguage,
   setToken,
-  clearCart,
 } from "../redux/shopSlice";
 import { FiGlobe } from "react-icons/fi";
 import { toast } from "react-toastify";
@@ -18,7 +17,8 @@ const Navbar = () => {
   const [visible, setVisible] = useState(false);
   const [currencyDropdownVisible, setCurrencyDropdownVisible] = useState(false);
   const [profileDropdownVisible, setProfileDropdownVisible] = useState(false);
-  const [hideTimeout, setHideTimeout] = useState(null); // Track timeout for hiding dropdown
+  const [hideTimeout, setHideTimeout] = useState(null);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
   const { cartItems, country, currency, language, countries, token } =
     useSelector((state) => state.shop);
   const dispatch = useDispatch();
@@ -34,27 +34,36 @@ const Navbar = () => {
     }, 0);
   };
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
     if (token) {
-      localStorage.removeItem("token");
-      dispatch(setToken(""));
-      dispatch(clearCart());
-      toast.success("Logged out successfully!");
+      setIsLoggingOut(true);
       setProfileDropdownVisible(false);
-      navigate("/login");
+      try {
+        // Clear local storage and state
+        localStorage.removeItem("token");
+        dispatch(setToken(""));
+        dispatch(clearCart());
+
+        // Show success toast and navigate immediately
+        toast.success("Logged out successfully!", { autoClose: 2000 });
+        navigate("/login", { replace: true });
+        setIsLoggingOut(false);
+      } catch (error) {
+        console.error("Logout error:", error);
+        toast.error("Failed to log out. Please try again.");
+        setIsLoggingOut(false);
+      }
     }
   };
 
-  // Handle mouse enter for profile icon
+  // Handle mouse enter for profile icon (only for logged-in users)
   const handleMouseEnter = () => {
     if (hideTimeout) {
-      clearTimeout(hideTimeout); // Clear any pending hide timeout
+      clearTimeout(hideTimeout);
       setHideTimeout(null);
     }
     if (token) {
       setProfileDropdownVisible(true);
-    } else {
-      navigate("/login");
     }
   };
 
@@ -62,8 +71,15 @@ const Navbar = () => {
   const handleMouseLeave = () => {
     const timeout = setTimeout(() => {
       setProfileDropdownVisible(false);
-    }, 200); // 200ms delay before hiding
+    }, 200);
     setHideTimeout(timeout);
+  };
+
+  // Handle click on profile icon
+  const handleProfileClick = () => {
+    if (!token) {
+      navigate("/login");
+    }
   };
 
   // Prevent background scrolling when mobile menu is open
@@ -205,16 +221,18 @@ const Navbar = () => {
           </div>
         </div>
 
-        {/* Profile Dropdown */}
+        {/* Profile Icon */}
         <div
-          className="relative"
+          className="relative group"
           onMouseEnter={handleMouseEnter}
           onMouseLeave={handleMouseLeave}
         >
           <img
             src={assets.profile_icon}
             alt="Profile"
-            className="w-5 cursor-pointer"
+            className="w-5 cursor-pointer transition-transform duration-200 group-hover:scale-110"
+            onClick={handleProfileClick}
+            aria-label={token ? "Open profile menu" : "Go to login"}
           />
           <div
             className={`absolute right-0 top-8 w-36 bg-white border border-gray-200 rounded shadow-lg z-20 ${
@@ -222,8 +240,8 @@ const Navbar = () => {
             }`}
             role="menu"
             aria-label="Profile menu"
-            onMouseEnter={handleMouseEnter} // Keep dropdown visible when hovering over it
-            onMouseLeave={handleMouseLeave} // Hide dropdown with delay when leaving
+            onMouseEnter={handleMouseEnter}
+            onMouseLeave={handleMouseLeave}
           >
             <div className="flex flex-col gap-2 py-3 px-5 text-gray-600">
               {token && (
@@ -246,7 +264,7 @@ const Navbar = () => {
                     role="menuitem"
                     onClick={handleLogout}
                   >
-                    Logout
+                    {isLoggingOut ? "Logging out..." : "Logout"}
                   </p>
                 </>
               )}

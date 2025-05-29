@@ -1,6 +1,6 @@
-import React from 'react';
-import { useSelector } from 'react-redux';
-import { Link } from 'react-router-dom';
+import React from "react";
+import { useSelector } from "react-redux";
+import { Link } from "react-router-dom";
 
 const ProductItem = ({ id, image, name, price, sizes, displaySize }) => {
   const { currency } = useSelector((state) => state.shop);
@@ -9,8 +9,17 @@ const ProductItem = ({ id, image, name, price, sizes, displaySize }) => {
   const getPriceDisplay = () => {
     console.log(`ProductItem Debug - ${name}:`, { price, sizes, displaySize });
 
-    if (!price || typeof price !== 'object' || !sizes || !Array.isArray(sizes) || sizes.length === 0) {
-      console.warn(`Invalid price or sizes for product ${name}:`, { price, sizes });
+    if (
+      !price ||
+      typeof price !== "object" ||
+      !sizes ||
+      !Array.isArray(sizes) ||
+      sizes.length === 0
+    ) {
+      console.warn(`Invalid price or sizes for product ${name}:`, {
+        price,
+        sizes,
+      });
       return `${currency}0.00`;
     }
 
@@ -18,19 +27,22 @@ const ProductItem = ({ id, image, name, price, sizes, displaySize }) => {
       return price[displaySize].display; // Already includes currency
     }
 
-    const validSize = sizes.find(size => price[size] && price[size].display);
+    const validSize = sizes.find((size) => price[size] && price[size].display);
     if (validSize) {
       return price[validSize].display; // Use the first valid price
     }
 
-    console.warn(`No valid price found for product ${name} with sizes ${sizes}:`, price);
+    console.warn(
+      `No valid price found for product ${name} with sizes ${sizes}:`,
+      price
+    );
     return `${currency}0.00`;
   };
 
   const displayPrice = getPriceDisplay();
 
   const scrollToTop = () => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   return (
@@ -43,8 +55,8 @@ const ProductItem = ({ id, image, name, price, sizes, displaySize }) => {
         <div className="relative h-full w-full">
           <img
             className="absolute h-full w-full object-cover transition-transform duration-500 ease-[cubic-bezier(0.25,0.8,0.25,1)] hover:scale-109"
-            src={image && image[0] ? image[0] : '/placeholder-image.jpg'}
-            alt={name || 'Product'}
+            src={image && image[0] ? image[0] : "/placeholder-image.jpg"}
+            alt={name || "Product"}
             loading="lazy"
           />
           <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
@@ -52,7 +64,7 @@ const ProductItem = ({ id, image, name, price, sizes, displaySize }) => {
       </div>
       <div className="px-1 space-y-1">
         <p className="text-gray-800 text-sm md:text-base font-medium line-clamp-2 transition-colors duration-200">
-          {name || 'Unnamed Product'}
+          {name || "Unnamed Product"}
         </p>
         <p className="text-gray-800 font-semibold text-base md:text-lg transition-colors duration-200">
           {displayPrice}

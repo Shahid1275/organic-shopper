@@ -100,62 +100,6 @@ const countryData = [
     conversionRate: 120.5,
     currencySymbol: "₩",
   },
-  {
-    country: "Russia",
-    currency: "RUB",
-    currencyName: "Russian Ruble",
-    language: "Russian",
-    conversionRate: 60.5,
-    currencySymbol: "₽",
-  },
-  {
-    country: "Australia",
-    currency: "AUD",
-    currencyName: "Australian Dollar",
-    language: "English",
-    conversionRate: 1.0,
-    currencySymbol: "$",
-  },
-  {
-    country: "Mexico",
-    currency: "MXN",
-    currencyName: "Mexican Peso",
-    language: "Spanish",
-    conversionRate: 10.2,
-    currencySymbol: "$",
-  },
-  {
-    country: "Indonesia",
-    currency: "IDR",
-    currencyName: "Indonesian Rupiah",
-    language: "Indonesian",
-    conversionRate: 162.0,
-    currencySymbol: "Rp",
-  },
-  {
-    country: "Netherlands",
-    currency: "EUR",
-    currencyName: "Euro",
-    language: "Dutch",
-    conversionRate: 0.73,
-    currencySymbol: "€",
-  },
-  {
-    country: "Saudi Arabia",
-    currency: "SAR",
-    currencyName: "Saudi Riyal",
-    language: "Arabic",
-    conversionRate: 2.75,
-    currencySymbol: "ر.س",
-  },
-  {
-    country: "Turkey",
-    currency: "TRY",
-    currencyName: "Turkish Lira",
-    language: "Turkish",
-    conversionRate: 30.7,
-    currencySymbol: "₺",
-  },
 ];
 
 export const fetchProducts = createAsyncThunk(
@@ -163,8 +107,8 @@ export const fetchProducts = createAsyncThunk(
   async (_, { getState, rejectWithValue }) => {
     try {
       const { backendUrl } = getState().shop;
-      const response = await axios.get(`${backendUrl}/api/product/list`); // Changed to /list (public)
-      return response.data; // { success: true, products: [...] }
+      const response = await axios.get(`${backendUrl}/api/product/list`);
+      return response.data;
     } catch (error) {
       const errorMessage = error.response?.data?.error || error.message;
       toast.error(
@@ -180,7 +124,7 @@ export const fetchBestSellers = createAsyncThunk(
   async (_, { getState, rejectWithValue }) => {
     try {
       const { backendUrl } = getState().shop;
-      const response = await axios.get(`${backendUrl}/api/product/list`); // Changed to /list (public)
+      const response = await axios.get(`${backendUrl}/api/product/list`);
       const products = response.data.products || [];
       const bestSellers = products.filter(
         (product) => product.bestseller === true
@@ -201,9 +145,8 @@ export const fetchLatestProducts = createAsyncThunk(
   async (_, { getState, rejectWithValue }) => {
     try {
       const { backendUrl } = getState().shop;
-      const response = await axios.get(`${backendUrl}/api/product/list`); // Changed to /list (public)
+      const response = await axios.get(`${backendUrl}/api/product/list`);
       const products = response.data.products || [];
-      // Sort by date (newest first) and take the top 8
       const latestProducts = products
         .sort((a, b) => new Date(b.date) - new Date(a.date))
         .slice(0, 8);
@@ -213,6 +156,245 @@ export const fetchLatestProducts = createAsyncThunk(
       toast.error(
         `Error fetching latest products at ${new Date().toISOString()}: ${errorMessage}`
       );
+      return rejectWithValue(errorMessage);
+    }
+  }
+);
+
+export const fetchUserCart = createAsyncThunk(
+  "shop/fetchUserCart",
+  async (userId, { getState, rejectWithValue }) => {
+    try {
+      if (!userId) {
+        throw new Error("User ID is required to fetch cart");
+      }
+
+      const { backendUrl, token } = getState().shop;
+      if (!token) {
+        throw new Error("Authentication token is missing");
+      }
+
+      const response = await axios.post(
+        `${backendUrl}/api/cart/get`,
+        { userId },
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+
+      return response.data.cartData || {};
+    } catch (error) {
+      const errorMessage = error.response?.data?.message || error.message;
+      toast.error(
+        `Error fetching cart at ${new Date().toISOString()}: ${errorMessage}`
+      );
+      return rejectWithValue(errorMessage);
+    }
+  }
+);
+
+export const addToCart = createAsyncThunk(
+  "shop/addToCart",
+  async ({ itemId, size, userId }, { getState, rejectWithValue, dispatch }) => {
+    try {
+      if (!itemId || !size || !userId) {
+        throw new Error("Please ensure a product, size, and user are selected");
+      }
+
+      const { backendUrl, token } = getState().shop;
+      if (!token) {
+        throw new Error("Please log in to add items to your cart");
+      }
+
+      const currentQuantity = getState().shop.cartItems[itemId]?.[size] || 0;
+      dispatch(
+        shopSlice.actions.updateLocalCart({
+          itemId,
+          size,
+          quantity: currentQuantity + 1,
+        })
+      );
+
+      const response = await axios.post(
+        `${backendUrl}/api/cart/add`,
+        { itemId, userId, size },
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+
+      if (response.status !== 200) {
+        throw new Error("Failed to add item to cart");
+      }
+
+      await dispatch(fetchUserCart(userId)).unwrap();
+
+      toast.success("Item added to cart!");
+      return { itemId, size, userId };
+    } catch (error) {
+      const currentQuantity = getState().shop.cartItems[itemId]?.[size] || 0;
+      if (currentQuantity > 0) {
+        dispatch(
+          shopSlice.actions.updateLocalCart({
+            itemId,
+            size,
+            quantity: currentQuantity - 1,
+          })
+        );
+      }
+
+      const errorMessage = error.response?.data?.message || error.message;
+      toast.error(errorMessage);
+      return rejectWithValue(errorMessage);
+    }
+  }
+);
+
+export const updateCartQuantity = createAsyncThunk(
+  "shop/updateCartQuantity",
+  async (
+    { itemId, size, quantity, userId },
+    { getState, rejectWithValue, dispatch }
+  ) => {
+    try {
+      if (!itemId || !size || quantity === undefined || !userId) {
+        throw new Error("Please ensure all required fields are provided");
+      }
+
+      const { backendUrl, token } = getState().shop;
+      if (!token) {
+        throw new Error("Please log in to update your cart");
+      }
+
+      const currentQuantity = getState().shop.cartItems[itemId]?.[size] || 0;
+      if (quantity === currentQuantity) return; // Avoid unnecessary updates
+
+      dispatch(
+        shopSlice.actions.updateLocalCart({
+          itemId,
+          size,
+          quantity,
+        })
+      );
+
+      const response = await axios.post(
+        `${backendUrl}/api/cart/update`,
+        { itemId, userId, size, quantity },
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+
+      if (response.status !== 200) {
+        throw new Error("Failed to update cart");
+      }
+
+      await dispatch(fetchUserCart(userId)).unwrap();
+
+      return { itemId, size, quantity };
+    } catch (error) {
+      const currentQuantity = getState().shop.cartItems[itemId]?.[size] || 0;
+      dispatch(
+        shopSlice.actions.updateLocalCart({
+          itemId,
+          size,
+          quantity: currentQuantity,
+        })
+      );
+
+      const errorMessage = error.response?.data?.message || error.message;
+      toast.error(errorMessage);
+      return rejectWithValue(errorMessage);
+    }
+  }
+);
+
+export const removeFromCart = createAsyncThunk(
+  "shop/removeFromCart",
+  async ({ itemId, size, userId }, { getState, rejectWithValue, dispatch }) => {
+    try {
+      if (!itemId || !size || !userId) {
+        throw new Error("Please ensure all required fields are provided");
+      }
+
+      const { backendUrl, token } = getState().shop;
+      if (!token) {
+        throw new Error("Please log in to remove items from your cart");
+      }
+
+      dispatch(
+        shopSlice.actions.updateLocalCart({
+          itemId,
+          size,
+          quantity: 0,
+        })
+      );
+
+      const response = await axios.post(
+        `${backendUrl}/api/cart/remove`,
+        { itemId, userId, size },
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+
+      if (response.status !== 200) {
+        throw new Error("Failed to remove item from cart");
+      }
+
+      await dispatch(fetchUserCart(userId)).unwrap();
+
+      toast.success("Item removed from cart!");
+      return { itemId, size };
+    } catch (error) {
+      const currentQuantity = getState().shop.cartItems[itemId]?.[size] || 0;
+      dispatch(
+        shopSlice.actions.updateLocalCart({
+          itemId,
+          size,
+          quantity: currentQuantity,
+        })
+      );
+
+      const errorMessage = error.response?.data?.message || error.message;
+      toast.error(errorMessage);
+      return rejectWithValue(errorMessage);
+    }
+  }
+);
+
+export const clearUserCart = createAsyncThunk(
+  "shop/clearUserCart",
+  async (userId, { getState, rejectWithValue, dispatch }) => {
+    try {
+      if (!userId) {
+        throw new Error("User ID is required to clear cart");
+      }
+
+      const { backendUrl, token } = getState().shop;
+      if (!token) {
+        throw new Error("Please log in to clear your cart");
+      }
+
+      const response = await axios.post(
+        `${backendUrl}/api/cart/clear`,
+        { userId },
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+
+      if (response.status !== 200) {
+        throw new Error("Failed to clear cart");
+      }
+
+      await dispatch(fetchUserCart(userId)).unwrap();
+
+      toast.success("Cart cleared successfully!");
+      return {};
+    } catch (error) {
+      const errorMessage = error.response?.data?.message || error.message;
+      toast.error(errorMessage);
       return rejectWithValue(errorMessage);
     }
   }
@@ -238,6 +420,10 @@ const initialState = {
   error: null,
   bestSellersError: null,
   latestProductsError: null,
+  addToCartLoading: false,
+  addToCartError: null,
+  fetchCartLoading: false,
+  fetchCartError: null,
   conversionRates: countryData.reduce(
     (acc, curr) => ({ ...acc, [curr.currency]: curr.conversionRate }),
     { USD: 1 }
@@ -254,37 +440,21 @@ export const shopSlice = createSlice({
     setShowSearch: (state, action) => {
       state.showSearch = action.payload;
     },
-    addToCart: (state, action) => {
-      const { itemId, size } = action.payload;
-      if (!state.cartItems[itemId]) {
-        state.cartItems[itemId] = {};
-      }
-      if (state.cartItems[itemId][size]) {
-        state.cartItems[itemId][size] += 1;
-      } else {
-        state.cartItems[itemId][size] = 1;
-      }
-    },
-    updateQuantity: (state, action) => {
+    updateLocalCart: (state, action) => {
       const { itemId, size, quantity } = action.payload;
-      if (state.cartItems[itemId] && state.cartItems[itemId][size]) {
-        if (quantity <= 0) {
+
+      if (quantity <= 0) {
+        if (state.cartItems[itemId]) {
           delete state.cartItems[itemId][size];
           if (Object.keys(state.cartItems[itemId]).length === 0) {
             delete state.cartItems[itemId];
           }
-        } else {
-          state.cartItems[itemId][size] = quantity;
         }
-      }
-    },
-    removeFromCart: (state, action) => {
-      const { itemId, size } = action.payload;
-      if (state.cartItems[itemId] && state.cartItems[itemId][size]) {
-        delete state.cartItems[itemId][size];
-        if (Object.keys(state.cartItems[itemId]).length === 0) {
-          delete state.cartItems[itemId];
+      } else {
+        if (!state.cartItems[itemId]) {
+          state.cartItems[itemId] = {};
         }
+        state.cartItems[itemId][size] = quantity;
       }
     },
     setCountry: (state, action) => {
@@ -308,7 +478,10 @@ export const shopSlice = createSlice({
     },
     setToken: (state, action) => {
       state.token = action.payload;
-      localStorage.setItem("token", action.payload); // Persist token to localStorage
+      localStorage.setItem("token", action.payload);
+    },
+    clearLocalCart: (state) => {
+      state.cartItems = {};
     },
     clearCart: (state) => {
       state.cartItems = {};
@@ -316,7 +489,6 @@ export const shopSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      // Fetch all products
       .addCase(fetchProducts.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -332,7 +504,6 @@ export const shopSlice = createSlice({
         state.error = action.payload;
         state.products = [];
       })
-      // Fetch best sellers
       .addCase(fetchBestSellers.pending, (state) => {
         state.bestSellersLoading = true;
         state.bestSellersError = null;
@@ -346,7 +517,6 @@ export const shopSlice = createSlice({
         state.bestSellersError = action.payload;
         state.bestSellers = [];
       })
-      // Fetch latest products
       .addCase(fetchLatestProducts.pending, (state) => {
         state.latestProductsLoading = true;
         state.latestProductsError = null;
@@ -361,10 +531,65 @@ export const shopSlice = createSlice({
         state.latestProductsLoading = false;
         state.latestProductsError = action.payload;
         state.latestProducts = [];
+      })
+      .addCase(fetchUserCart.pending, (state) => {
+        state.fetchCartLoading = true;
+        state.fetchCartError = null;
+      })
+      .addCase(fetchUserCart.fulfilled, (state, action) => {
+        state.fetchCartLoading = false;
+        state.cartItems = action.payload;
+      })
+      .addCase(fetchUserCart.rejected, (state, action) => {
+        state.fetchCartLoading = false;
+        state.fetchCartError = action.payload;
+      })
+      .addCase(addToCart.pending, (state) => {
+        state.addToCartLoading = true;
+        state.addToCartError = null;
+      })
+      .addCase(addToCart.fulfilled, (state) => {
+        state.addToCartLoading = false;
+      })
+      .addCase(addToCart.rejected, (state, action) => {
+        state.addToCartLoading = false;
+        state.addToCartError = action.payload;
+      })
+      .addCase(updateCartQuantity.pending, (state) => {
+        state.addToCartLoading = true;
+      })
+      .addCase(updateCartQuantity.fulfilled, (state) => {
+        state.addToCartLoading = false;
+      })
+      .addCase(updateCartQuantity.rejected, (state, action) => {
+        state.addToCartLoading = false;
+        state.addToCartError = action.payload;
+      })
+      .addCase(removeFromCart.pending, (state) => {
+        state.addToCartLoading = true;
+      })
+      .addCase(removeFromCart.fulfilled, (state) => {
+        state.addToCartLoading = false;
+      })
+      .addCase(removeFromCart.rejected, (state, action) => {
+        state.addToCartLoading = false;
+        state.addToCartError = action.payload;
+      })
+      .addCase(clearUserCart.pending, (state) => {
+        state.addToCartLoading = true;
+      })
+      .addCase(clearUserCart.fulfilled, (state) => {
+        state.addToCartLoading = false;
+        state.cartItems = {};
+      })
+      .addCase(clearUserCart.rejected, (state, action) => {
+        state.addToCartLoading = false;
+        state.addToCartError = action.payload;
       });
   },
 });
 
+// Selectors
 export const getCartAmount = (state) => {
   let cartTotal = 0;
   const {
@@ -376,7 +601,6 @@ export const getCartAmount = (state) => {
   } = state.shop;
   const isCartEmpty = Object.keys(cartItems).length === 0;
 
-  // Convert delivery fee to selected currency
   const convertedDeliveryFee = delivery_Fee * (conversionRates[currency] || 1);
 
   for (const itemId in cartItems) {
@@ -414,17 +638,26 @@ export const getCartAmount = (state) => {
   };
 };
 
+export const getCartItemCount = (state) => {
+  let count = 0;
+  for (const itemId in state.shop.cartItems) {
+    for (const size in state.shop.cartItems[itemId]) {
+      count += state.shop.cartItems[itemId][size];
+    }
+  }
+  return count;
+};
+
 export const {
   setSearch,
   setShowSearch,
-  addToCart,
-  updateQuantity,
-  removeFromCart,
+  updateLocalCart,
   setCountry,
   setToken,
   setCurrency,
-  setLanguage,
   clearCart,
+  setLanguage,
+  clearLocalCart,
 } = shopSlice.actions;
 
 export default shopSlice.reducer;

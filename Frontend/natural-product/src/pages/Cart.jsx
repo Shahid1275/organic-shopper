@@ -1,15 +1,19 @@
-import React, { useEffect, useState } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
-import { toast } from 'react-toastify';
-import Title from '../components/Title';
-import { assets } from '../assets/assets';
-import { useNavigate } from 'react-router-dom';
-import { updateQuantity, removeFromCart } from '../redux/shopSlice';
-import CartTotal from '../components/CartTotal';
+import React, { useEffect, useState, useCallback } from "react";
+import { useSelector, useDispatch } from "react-redux";
+import { toast } from "react-toastify";
+import Title from "../components/Title";
+import { assets } from "../assets/assets";
+import { useNavigate } from "react-router-dom";
+import { updateCartQuantity, removeFromCart } from "../redux/shopSlice";
+import CartTotal from "../components/CartTotal";
+import { jwtDecode } from "jwt-decode";
+import { setToken } from "../redux/shopSlice";
 
 const Cart = () => {
   const dispatch = useDispatch();
-  const { products, currency, cartItems } = useSelector((state) => state.shop);
+  const { products, currency, cartItems, token } = useSelector(
+    (state) => state.shop
+  );
   const [cartData, setCartData] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [itemToRemove, setItemToRemove] = useState(null);
@@ -32,16 +36,69 @@ const Cart = () => {
   }, [cartItems]);
 
   const handleQuantityChange = (itemId, size, newQuantity) => {
-    dispatch(updateQuantity({ itemId, size, quantity: parseInt(newQuantity) || 1 }));
+    if (!token) {
+      toast.error("Please log in to update your cart");
+      return;
+    }
+
+    let userId;
+    try {
+      const decoded = jwtDecode(token);
+      userId = decoded.userId || decoded.id;
+      if (!userId) {
+        throw new Error("User ID not found in token");
+      }
+    } catch (error) {
+      console.error("Error decoding token:", error);
+      toast.error("Invalid authentication token. Please log in again.", {
+        onClose: () => {
+          localStorage.removeItem("token");
+          dispatch(setToken(""));
+          window.location.href = "/login";
+        },
+      });
+      return;
+    }
+
+    const quantity = parseInt(newQuantity) || 1;
+    if (quantity <= 0) {
+      openRemoveModal(itemId, size);
+      return;
+    }
+
+    dispatch(updateCartQuantity({ itemId, size, quantity, userId }));
   };
 
-  const handleRemoveItem = (itemId, size) => {
-    dispatch(removeFromCart({ itemId, size }));
-    toast.success('Item removed from cart!', {
-      position: 'top-right',
-      autoClose: 2000,
-    });
-  };
+  const handleRemoveItem = useCallback(
+    (itemId, size) => {
+      if (!token) {
+        toast.error("Please log in to remove items from your cart");
+        return;
+      }
+
+      let userId;
+      try {
+        const decoded = jwtDecode(token);
+        userId = decoded.userId || decoded.id;
+        if (!userId) {
+          throw new Error("User ID not found in token");
+        }
+      } catch (error) {
+        console.error("Error decoding token:", error);
+        toast.error("Invalid authentication token. Please log in again.", {
+          onClose: () => {
+            localStorage.removeItem("token");
+            dispatch(setToken(""));
+            window.location.href = "/login";
+          },
+        });
+        return;
+      }
+
+      dispatch(removeFromCart({ itemId, size, userId }));
+    },
+    [dispatch, token]
+  );
 
   const openRemoveModal = (itemId, size) => {
     setItemToRemove({ itemId, size });
@@ -68,7 +125,7 @@ const Cart = () => {
         </div>
         <div
           className={`space-y-4 sm:space-y-6 transition-all duration-300 ${
-            isModalOpen ? 'opacity-50' : ''
+            isModalOpen ? "opacity-50" : ""
           }`}
         >
           {cartData.length === 0 ? (
@@ -82,9 +139,15 @@ const Cart = () => {
               </a>
             </div>
           ) : (
-            cartData.map((item, index) => {
-              const productData = products.find((product) => product._id === item._id);
-              if (!productData || !productData.price || !productData.price[item.size]) {
+            cartData.map((item) => {
+              const productData = products.find(
+                (product) => product._id === item._id
+              );
+              if (
+                !productData ||
+                !productData.price ||
+                !productData.price[item.size]
+              ) {
                 return null; // Skip rendering if product or price is missing
               }
               return (
@@ -95,12 +158,16 @@ const Cart = () => {
                   <div className="flex items-center gap-4 sm:gap-6">
                     <img
                       className="w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 object-contain rounded-lg bg-gray-100 p-2"
-                      src={productData.image && productData.image[0] ? productData.image[0] : assets.placeholder_image}
+                      src={
+                        productData.image && productData.image[0]
+                          ? productData.image[0]
+                          : assets.placeholder_image
+                      }
                       alt={`${productData.name} image`}
                     />
                     <div className="space-y-1 sm:space-y-2">
                       <p className="text-base sm:text-lg md:text-xl font-medium text-gray-900">
-                        {productData.name || 'Unnamed Product'}
+                        {productData.name || "Unnamed Product"}
                       </p>
                       <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 text-xs sm:text-sm md:text-base">
                         <p className="font-medium text-gray-700">
@@ -116,9 +183,13 @@ const Cart = () => {
                     min={1}
                     value={item.quantity}
                     onChange={(e) =>
-                      e.target.value === '' || e.target.value === '0'
+                      e.target.value === "" || e.target.value === "0"
                         ? openRemoveModal(item._id, item.size)
-                        : handleQuantityChange(item._id, item.size, e.target.value)
+                        : handleQuantityChange(
+                            item._id,
+                            item.size,
+                            e.target.value
+                          )
                     }
                     className="border border-gray-300 rounded-lg px-2 sm:px-3 py-1 sm:py-2 text-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-400 w-16 sm:w-20 md:w-24 transition text-sm sm:text-base"
                   />
@@ -127,7 +198,11 @@ const Cart = () => {
                     className="p-2 hover:bg-gray-100 rounded-full transition cursor-pointer"
                     aria-label={`Remove ${productData.name}, size ${item.size} from cart`}
                   >
-                    <img src={assets.bin_icon} alt="Remove item" className="w-4 sm:w-5 h-4 sm:h-5" />
+                    <img
+                      src={assets.bin_icon}
+                      alt="Remove item"
+                      className="w-4 sm:w-5 h-4 sm:h-5"
+                    />
                   </button>
                 </div>
               );
@@ -172,7 +247,7 @@ const Cart = () => {
           <CartTotal />
           <div className="w-full text-end">
             <button
-              onClick={() => navigate('/place-order')}
+              onClick={() => navigate("/place-order")}
               className="cursor-pointer bg-black text-white text-sm my-8 px-8 py-3"
             >
               PROCEED TO CHECKOUT
