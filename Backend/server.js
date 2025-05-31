@@ -9,6 +9,7 @@ import reviewRouter from "./routes/reviewRoutes.js";
 import path from "path";
 import { fileURLToPath } from "url";
 import router from "./routes/cartRoutes.js";
+import orderRouter from "./routes/orderRoute.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -38,7 +39,7 @@ app.use("/api/user", userRouter);
 app.use("/api/review", reviewRouter);
 app.use("/api/product", productRouter);
 app.use("/api/cart", router);
-
+app.use("/api/order", orderRouter);
 // Global error handler
 app.use((err, req, res, next) => {
   console.error("Uncaught error:", err.stack);
