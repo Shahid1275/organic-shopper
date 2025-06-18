@@ -11,15 +11,15 @@ import { auth } from "../middlewares/auth.js";
 
 const orderRouter = express.Router();
 
-//admin features
+// Admin features
 orderRouter.post("/list", adminAuth, allOrders);
-orderRouter.post("status", adminAuth, updateStatus);
+orderRouter.put("/status", adminAuth, updateStatus); // Changed to PUT for status update
 
-//payment features
+// Payment features
 orderRouter.post("/place", auth, placeOrder);
 orderRouter.post("/stripe", auth, placeOrderStripe);
 
-//user features
+// User features
 orderRouter.post("/userorders", auth, userOrders);
 
 export default orderRouter;

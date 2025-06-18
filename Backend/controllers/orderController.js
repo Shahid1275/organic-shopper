@@ -1,4 +1,3 @@
-// this is the controller for the order page
 import orderModel from "../models/orderModel.js";
 import userModel from "../models/userModel.js";
 import productModel from "../models/productModel.js";
@@ -163,10 +162,30 @@ const allOrders = async (req, res) => {
 const userOrders = async (req, res) => {
   try {
     const userId = req.body.userId;
-    const orders = await orderModel.find({ userId }).sort({ date: -1 });
+    const orders = await orderModel.find({ userId })
+      .sort({ date: -1 })
+      .lean();
+    
+    // Populate product details for each item
+    const populatedOrders = await Promise.all(orders.map(async (order) => {
+      const itemsWithDetails = await Promise.all(order.items.map(async (item) => {
+        const product = await productModel.findById(item.itemId)
+          .select('name image price')
+          .lean();
+        return {
+          ...item,
+          productDetails: product || null
+        };
+      }));
+      return {
+        ...order,
+        items: itemsWithDetails
+      };
+    }));
+
     return res.status(200).json({
       success: true,
-      orders
+      orders: populatedOrders
     });
   } catch (error) {
     console.error("Error fetching user orders:", error);
@@ -181,19 +200,22 @@ const userOrders = async (req, res) => {
 // Update order status
 const updateStatus = async (req, res) => {
   try {
-    const { orderId, status } = req.body;
+    const { orderId, itemId, status } = req.body;
     
-    if (!orderId || !status) {
+    if (!orderId || !itemId || !status) {
       return res.status(400).json({
         success: false,
-        message: "Order ID and status are required"
+        message: "Order ID, item ID, and status are required"
       });
     }
 
     const updatedOrder = await orderModel.findOneAndUpdate(
       { orderId },
-      { status },
-      { new: true }
+      { $set: { "items.$[elem].status": status } }, // Update specific item status
+      { 
+        arrayFilters: [{ "elem.itemId": itemId }],
+        new: true
+      }
     );
 
     if (!updatedOrder) {
